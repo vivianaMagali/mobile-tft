@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "606394326708",
+    "firebase_url": "https://tft-bd-default-rtdb.firebaseio.com",
+    "project_id": "tft-bd",
+    "storage_bucket": "tft-bd.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:606394326708:android:ce8812d01f71e183a701e1",
+        "android_client_info": {
+          "package_name": "com.company.androidmobiletft"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "606394326708-ic4dbbmgrhbdk5p65ebkntfmk0qg7l80.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyATUO0Gh1CpJt_PgFDdNbx0hznXSV0v0qM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "606394326708-ic4dbbmgrhbdk5p65ebkntfmk0qg7l80.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
