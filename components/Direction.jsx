@@ -1,60 +1,59 @@
-import React, { useState } from "react";
-import { View, Text, TextInput, StyleSheet } from "react-native";
+import React, {useState} from 'react';
+import {View, Text, TextInput, StyleSheet} from 'react-native';
 import {Picker} from '@react-native-picker/picker';
-import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete';
-import { ScrollView } from "react-native-gesture-handler";
+import {GooglePlacesAutocomplete} from 'react-native-google-places-autocomplete';
+import {ScrollView} from 'react-native-gesture-handler';
 
-const Direction = ({ restaurant, setPlace }) => {
-  const [selectedOptionPlace, setSelectedOptionPlace] = useState("home");
+const Direction = ({restaurant, setPlace}) => {
+  const [selectedOptionPlace, setSelectedOptionPlace] = useState('home');
   // const pickerRef = useRef();
   return (
     <View style={styles.container}>
       <Text style={styles.label}>¿Dónde deseas comerlo?</Text>
-     
+
       <Picker
-      // ref={pickerRef}
-      style={styles.picker}
-      selectedValue={selectedOptionPlace}
-      onValueChange={(itemValue, itemIndex) =>
-        setSelectedOptionPlace(itemValue)
-      }>
-       <Picker.Item label="A domicilio" value="home" />
+        // ref={pickerRef}
+        style={styles.picker}
+        selectedValue={selectedOptionPlace}
+        onValueChange={(itemValue, itemIndex) =>
+          setSelectedOptionPlace(itemValue)
+        }>
+        <Picker.Item label="A domicilio" value="home" />
         <Picker.Item label="Recogida en local" value="pickup" />
         <Picker.Item label="Estoy en una mesa" value="local" />
       </Picker>
 
-      {selectedOptionPlace === "home" && (
-        <View >
+      {selectedOptionPlace === 'home' && (
+        <View>
           <ScrollView>
-
             <GooglePlacesAutocomplete
               placeholder="Busca una dirección..."
               onPress={(data, details = null) => {
                 setPlace(data.description);
               }}
               query={{
-                key: "AIzaSyDbKaQl6IEo_hLQ-qBLV-uPEEaIvbe8ULk",
+                key: 'AIzaSyDbKaQl6IEo_hLQ-qBLV-uPEEaIvbe8ULk',
                 language: 'es',
               }}
               // style={styles.input}
             />
-          <TextInput
-            required
-            style={styles.input}
-            placeholder="Nº piso, portal, etc."
-            name="detail"
-          />
+            <TextInput
+              required
+              style={styles.input}
+              placeholder="Nº piso, portal, etc."
+              name="detail"
+            />
           </ScrollView>
         </View>
       )}
 
-      {selectedOptionPlace === "pickup" && (
+      {selectedOptionPlace === 'pickup' && (
         <Text style={styles.pickupText}>
           {restaurant?.basic_information.direction}
         </Text>
       )}
 
-      {selectedOptionPlace === "local" && (
+      {selectedOptionPlace === 'local' && (
         <TextInput
           required
           style={styles.input}

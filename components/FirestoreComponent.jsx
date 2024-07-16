@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from 'react';
-import { View, Text, FlatList } from 'react-native';
-import { firestore } from '../firebaseConfig';
+import React, {useEffect, useState} from 'react';
+import {View, Text, FlatList} from 'react-native';
+import {firestore} from '../firebaseConfig';
 
 const FirestoreComponent = () => {
   const [users, setUsers] = useState([]);
@@ -12,7 +12,7 @@ const FirestoreComponent = () => {
         const usersList = usersCollection.docs.map(doc => doc.data());
         setUsers(usersList);
       } catch (error) {
-        console.error("Error fetching Firestore data: ", error);
+        console.error('Error fetching Firestore data: ', error);
       }
     };
 
@@ -25,12 +25,12 @@ const FirestoreComponent = () => {
       <FlatList
         data={users}
         keyExtractor={(item, index) => index.toString()}
-        renderItem={({ item }) => (
+        renderItem={({item}) => (
           <View>
             <Text>{item.name}</Text>
           </View>
         )}
-        />
+      />
     </View>
   );
 };

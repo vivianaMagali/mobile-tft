@@ -1,9 +1,21 @@
-import React, { useState } from 'react';
-import { View, Text, TextInput, Button, Image, StyleSheet, TouchableOpacity, Alert } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
-import { signInWithEmailAndPassword, createUserWithEmailAndPassword } from '@react-native-firebase/auth';
-import { doc, getDoc, setDoc } from '@react-native-firebase/firestore';
-import { firestore, auth } from '../firebaseConfig';
+import React, {useState} from 'react';
+import {
+  View,
+  Text,
+  TextInput,
+  Button,
+  Image,
+  StyleSheet,
+  TouchableOpacity,
+  Alert,
+} from 'react-native';
+import {useNavigation} from '@react-navigation/native';
+import {
+  signInWithEmailAndPassword,
+  createUserWithEmailAndPassword,
+} from '@react-native-firebase/auth';
+import {doc, getDoc, setDoc} from '@react-native-firebase/firestore';
+import {firestore, auth} from '../firebaseConfig';
 import logo from '../assets/logo.png';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 
@@ -17,7 +29,7 @@ const Login = () => {
   const [error, setError] = useState('');
   const navigation = useNavigation();
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async e => {
     e.preventDefault();
 
     if (!registering) {
@@ -52,15 +64,21 @@ const Login = () => {
       }
     } else {
       try {
-        const { user } = await createUserWithEmailAndPassword(auth(), email, password);
-        const userData = { email, name, phone };
+        const {user} = await createUserWithEmailAndPassword(
+          auth(),
+          email,
+          password,
+        );
+        const userData = {email, name, phone};
         const userRef = doc(firestore(), 'users', user.uid);
         await setDoc(userRef, userData);
         setError('');
         navigation.navigate('Home');
       } catch (error) {
         if (error.code === 'auth/weak-password') {
-          setError('Error: La contraseña es demasiado débil. Debe tener al menos 6 caracteres.');
+          setError(
+            'Error: La contraseña es demasiado débil. Debe tener al menos 6 caracteres.',
+          );
         } else if (error.code === 'auth/email-already-in-use') {
           setError('Error: Este correo ya ha sido registrado');
         } else {
@@ -79,7 +97,9 @@ const Login = () => {
     <View style={styles.container}>
       <View style={styles.logoContainer}>
         <Image source={logo} style={styles.logo} />
-        <Text style={styles.title}>{!registering ? 'Iniciar sesión' : 'Registrarse'}</Text>
+        <Text style={styles.title}>
+          {!registering ? 'Iniciar sesión' : 'Registrarse'}
+        </Text>
       </View>
       <View style={styles.formContainer}>
         <View>
@@ -111,30 +131,47 @@ const Login = () => {
           />
           <Text style={styles.label}>Contraseña*</Text>
           <View>
-                <TextInput
-                    style={styles.input}
-                    autoComplete="password"
-                    onChangeText={setPassword}
-                    secureTextEntry={!isPasswordVisible}
-                    value={password}
-                />
-                <TouchableOpacity onPress={showVisible} style={styles.icon}>
-                    <Icon name={isPasswordVisible ? 'visibility' : 'visibility-off'} size={24} color="grey" />
-                </TouchableOpacity>
-            </View>
-          <Button title={!registering ? 'Iniciar sesión' : 'Registrarse'} onPress={handleSubmit} />
+            <TextInput
+              style={styles.input}
+              autoComplete="password"
+              onChangeText={setPassword}
+              secureTextEntry={!isPasswordVisible}
+              value={password}
+            />
+            <TouchableOpacity onPress={showVisible} style={styles.icon}>
+              <Icon
+                name={isPasswordVisible ? 'visibility' : 'visibility-off'}
+                size={24}
+                color="grey"
+              />
+            </TouchableOpacity>
+          </View>
+          <Button
+            title={!registering ? 'Iniciar sesión' : 'Registrarse'}
+            onPress={handleSubmit}
+          />
           {error ? <Text style={styles.error}>{error}</Text> : null}
         </View>
         <Text style={styles.switchText}>
           {!registering ? (
             <>
               {'¿No tienes cuenta? '}
-              <Text onPress={() => { setRegistering(!registering); setError(''); }} style={styles.switchLink}>
+              <Text
+                onPress={() => {
+                  setRegistering(!registering);
+                  setError('');
+                }}
+                style={styles.switchLink}>
                 Regístrate
               </Text>
             </>
           ) : (
-            <Text onPress={() => { setRegistering(!registering); setError(''); }} style={styles.switchLink}>
+            <Text
+              onPress={() => {
+                setRegistering(!registering);
+                setError('');
+              }}
+              style={styles.switchLink}>
               Inicia sesión
             </Text>
           )}
