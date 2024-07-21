@@ -9,48 +9,71 @@ import {
 } from 'react-native';
 import {useNavigation} from '@react-navigation/native';
 import {firestore} from '../firebaseConfig';
-import RestaurantSearch from './RestaurantSearch';
+import Searcher from './Searcher';
 
 const Home = () => {
   const [restaurantList, setRestaurantList] = useState([]);
+  const [filteredRestaurants, setFilteredRestaurants] = useState([]);
   const navigation = useNavigation();
 
   useEffect(() => {
-    const fetchData = async () => {
+    const fetchRestaurants = async () => {
       try {
         const restaurantsCollection = await firestore()
           .collection('restaurants')
           .get();
-        const restaurantList = restaurantsCollection.docs.map(doc =>
+
+        const fetchedRestaurants = restaurantsCollection.docs.map(doc =>
           doc.data(),
         );
-        setRestaurantList(restaurantList);
+
+        setRestaurantList(fetchedRestaurants);
       } catch (error) {
-        console.error('Error fetching Firestore data: ', error);
+        console.error('Error fetching Firestore data:', error);
       }
     };
 
-    fetchData();
+    fetchRestaurants();
   }, []);
 
-  const getRestaurant = restaurant => {
-    navigation.navigate('Restaurant', {restaurant});
+  const getRestaurant = uidRestaurant => {
+    navigation.navigate('Restaurant', {uidRestaurant});
+  };
+
+  const filterRestaurants = text => {
+    if (text?.trim() === '') {
+      setFilteredRestaurants(restaurantList);
+    } else {
+      const filtered = restaurantList?.filter(restaurant =>
+        restaurant?.basic_information?.name
+          ?.toLowerCase()
+          .includes(text?.toLowerCase()),
+      );
+      setFilteredRestaurants(filtered);
+    }
   };
 
   return (
     <SafeAreaView>
       <ScrollView>
         <Text>¿Dónde deseas comer?</Text>
-        <RestaurantSearch />
+        <Searcher filterList={filterRestaurants} />
         <View>
-          {restaurantList?.length > 0 &&
-            restaurantList.map(restaurant => (
-              <TouchableOpacity
-                key={restaurant.uid}
-                onPress={() => getRestaurant(restaurant)}>
-                <RestaurantCard restaurant={restaurant} />
-              </TouchableOpacity>
-            ))}
+          {filteredRestaurants?.length > 0
+            ? filteredRestaurants.map(restaurant => (
+                <TouchableOpacity
+                  key={restaurant.uid}
+                  onPress={() => getRestaurant(restaurant.uid)}>
+                  <RestaurantCard restaurant={restaurant} />
+                </TouchableOpacity>
+              ))
+            : restaurantList.map(restaurant => (
+                <TouchableOpacity
+                  key={restaurant.uid}
+                  onPress={() => getRestaurant(restaurant.uid)}>
+                  <RestaurantCard restaurant={restaurant} />
+                </TouchableOpacity>
+              ))}
         </View>
       </ScrollView>
     </SafeAreaView>

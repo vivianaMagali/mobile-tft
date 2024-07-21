@@ -12,21 +12,13 @@ import {doc, getDoc} from '@react-native-firebase/firestore';
 import messaging from '@react-native-firebase/messaging';
 import {Alert} from 'react-native';
 import axios from 'axios';
+import HomeWaiter from './components/HomeWaiter';
+import PendingOrdersOfWaiter from './components/PendingOrdersOfWaiter';
 
 const Stack = createStackNavigator();
 export const FirebaseContext = createContext();
 
-const sendTokenToServer = async token => {
-  try {
-    console.log('FCM Token:', token);
-    await axios.post('http://192.168.1.76:3001/token', {
-      token,
-    });
-  } catch (error) {
-    console.error('Failed to send token to server:', error);
-  }
-};
-
+//Solicito permiso para enviar notificaciones
 const requestUserPermission = async () => {
   const authStatus = await messaging().requestPermission();
   const enabled =
@@ -40,32 +32,52 @@ const requestUserPermission = async () => {
   }
 };
 
-const getToken = async () => {
+//Envío el token del dispositivo móvil al servidor
+// const sendTokenToServer = async token => {
+//   console.log('token axios', token);
+//   try {
+//     await axios.post('https://ef9c-90-165-59-29.ngrok-free.app/api/token', {
+//       token,
+//     });
+//   } catch (error) {
+//     console.error('Failed to send token to server:', error);
+//   }
+// };
+
+//Obtengo el token del dispositivo móvil y lo almaceno en el estado
+const getToken = async setToken => {
   const fcmToken = await messaging().getToken();
   if (fcmToken) {
-    sendTokenToServer(fcmToken);
+    setToken(fcmToken);
+    // sendTokenToServer(fcmToken); //para que lo quiero enviar al servidor ? si alli no lo voy a usar
   } else {
     console.log('Failed to get FCM token');
   }
 };
 
+//Recibir notificación con app abierta
 const setupNotificationOpenedAppHandler = () => {
   messaging().onNotificationOpenedApp(remoteMessage => {
-    console.log('User tapped on notification:', remoteMessage);
-    Alert.alert('A new FCM message arrived!', JSON.stringify(remoteMessage));
+    Alert.alert(
+      'A new FCM message arrived with open app!',
+      JSON.stringify(remoteMessage),
+    );
   });
 };
 
+//Recibir notificación con app en segundo plano
 const setupBackgroundMessageHandler = () => {
   messaging().setBackgroundMessageHandler(async remoteMessage => {
-    console.log('A new FCM message arrived in background!', remoteMessage);
-    Alert.alert('A new FCM message arrived!', JSON.stringify(remoteMessage));
+    Alert.alert(
+      'A new FCM message arrived background app!',
+      JSON.stringify(remoteMessage),
+    );
   });
 };
 
+//Recibo notificación en que plano?
 const setupNotificationListener = () => {
   messaging().onMessage(async remoteMessage => {
-    console.log('A new FCM message arrived!', remoteMessage);
     Alert.alert('A new FCM message arrived!', JSON.stringify(remoteMessage));
   });
 };
@@ -73,10 +85,11 @@ const setupNotificationListener = () => {
 function App() {
   const [user, setUser] = useState();
   const [record, setRecord] = useState([]);
+  const [token, setToken] = useState();
 
   useEffect(() => {
     requestUserPermission();
-    getToken();
+    getToken(setToken);
     setupNotificationListener();
     setupBackgroundMessageHandler();
     setupNotificationOpenedAppHandler();
@@ -104,7 +117,7 @@ function App() {
   }, []);
 
   return (
-    <FirebaseContext.Provider value={{user, record}}>
+    <FirebaseContext.Provider value={{user, record, token: token}}>
       <NavigationContainer>
         <Stack.Navigator initialRouteName={'Login'}>
           <Stack.Screen name="Login" component={Login} />
@@ -112,6 +125,11 @@ function App() {
           <Stack.Screen name="Restaurant" component={Restaurant} />
           <Stack.Screen name="ConfirmOrder" component={ConfirmOrder} />
           <Stack.Screen name="Direction" component={Direction} />
+          <Stack.Screen name="HomeWaiter" component={HomeWaiter} />
+          <Stack.Screen
+            name="PendingOrdersOfWaiter"
+            component={PendingOrdersOfWaiter}
+          />
         </Stack.Navigator>
       </NavigationContainer>
     </FirebaseContext.Provider>

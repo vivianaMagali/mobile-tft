@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useContext, useState} from 'react';
 import {
   View,
   Text,
@@ -18,6 +18,7 @@ import {doc, getDoc, setDoc} from '@react-native-firebase/firestore';
 import {firestore, auth} from '../firebaseConfig';
 import logo from '../assets/logo.png';
 import Icon from 'react-native-vector-icons/MaterialIcons';
+import {FirebaseContext} from '../App';
 
 const Login = () => {
   const [registering, setRegistering] = useState(false);
@@ -28,15 +29,45 @@ const Login = () => {
   const [phone, setPhone] = useState('');
   const [error, setError] = useState('');
   const navigation = useNavigation();
+  const {token} = useContext(FirebaseContext);
 
   const handleSubmit = async e => {
     e.preventDefault();
+
+    // if (!registering) {
+    //   try {
+    //     await signInWithEmailAndPassword(auth(), email, password);
+    //     setError('');
+    //     const user = auth().currentUser;
+
+    //     const userDocRef = doc(firestore(), 'users', user.uid);
+    //     const userDoc = await getDoc(userDocRef);
+
+    //     if (userDoc.exists) {
+    //       const userData = userDoc.data();
+    //       const userRole = userData.role;
+
+    //       if (userRole === 'Camarero') {
+    //         navigation.navigate('HomeWaiter');
+    //       } else {
+    //         navigation.navigate('Home');
+    //       }
+    //       //guardar o actualizar el token para el usuario que sea
+    //       await setDoc(userDocRef, {token: token, ...userDoc.data()});
+    //     } else {
+    //       console.log('no entra'); // Si el documento del usuario no existe
+    //     }
+    //   } catch (error) {
+    //     console.error('Error durante el proceso de inicio de sesión:', error); // Añade esto para capturar cualquier error
+    //   }
+    // }
 
     if (!registering) {
       try {
         await signInWithEmailAndPassword(auth(), email, password);
         setError('');
         const user = auth().currentUser;
+
         const userDocRef = doc(firestore(), 'users', user.uid);
         const userDoc = await getDoc(userDocRef);
 
@@ -45,21 +76,23 @@ const Login = () => {
           const userRole = userData.role;
 
           if (userRole === 'Camarero') {
-            // navigation.navigate('');
+            navigation.navigate('HomeWaiter');
           } else {
             navigation.navigate('Home');
           }
+          //guardar o actualizar el token para el usuario que sea
+          await setDoc(userDocRef, {token: token, ...userDoc.data()});
         } else {
-          console.log('no entra');
+          console.log('no entra'); // Si el documento del usuario no existe
         }
-      } catch (error) {
-        if (error.code === 'auth/user-not-found') {
+      } catch (err) {
+        if (err.code === 'auth/user-not-found') {
           setError('Error: El usuario es incorrecto');
-        } else if (error.code === 'auth/wrong-password') {
+        } else if (err.code === 'auth/wrong-password') {
           setError('Error: La contraseña es incorrecta');
         } else {
-          setError(error.message);
-          console.error('Error:', error.message);
+          setError(err.message);
+          console.error('Error:', err.message);
         }
       }
     } else {
@@ -69,21 +102,21 @@ const Login = () => {
           email,
           password,
         );
-        const userData = {email, name, phone};
+        const userData = {email, name, phone, token, uidUser: user.uid};
         const userRef = doc(firestore(), 'users', user.uid);
         await setDoc(userRef, userData);
         setError('');
         navigation.navigate('Home');
-      } catch (error) {
-        if (error.code === 'auth/weak-password') {
+      } catch (err) {
+        if (err.code === 'auth/weak-password') {
           setError(
             'Error: La contraseña es demasiado débil. Debe tener al menos 6 caracteres.',
           );
-        } else if (error.code === 'auth/email-already-in-use') {
+        } else if (err.code === 'auth/email-already-in-use') {
           setError('Error: Este correo ya ha sido registrado');
         } else {
-          setError(error.message);
-          console.error('Error:', error.message);
+          setError(err.message);
+          console.error('Error:', err.message);
         }
       }
     }

@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, {useContext, useEffect, useState} from 'react';
 import {
   View,
   Text,
@@ -7,9 +7,11 @@ import {
   TouchableOpacity,
   StyleSheet,
 } from 'react-native';
+import {FirebaseContext} from '../App';
 
 const MenuCard = ({product, orders, setOrders, setShowOrderSummary}) => {
   const [quantity, setQuantity] = useState(0);
+  const {user} = useContext(FirebaseContext);
 
   useEffect(() => {
     if (orders.length > 0) {
@@ -54,9 +56,12 @@ const MenuCard = ({product, orders, setOrders, setShowOrderSummary}) => {
   return (
     <ScrollView>
       <View style={styles.card}>
-        <View style={styles.imageContainer}>
-          <Image source={{uri: product.img}} style={styles.image} />
-        </View>
+        {user.role !== 'Camarero' && (
+          <View style={styles.imageContainer}>
+            <Image source={{uri: product.img}} style={styles.image} />
+          </View>
+        )}
+
         <View style={styles.details}>
           <Text style={styles.productName}>{product.name}</Text>
           <Text style={styles.productIngredients}>{product.ingredients}</Text>

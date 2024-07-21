@@ -4,13 +4,19 @@ import {Picker} from '@react-native-picker/picker';
 import {GooglePlacesAutocomplete} from 'react-native-google-places-autocomplete';
 import {ScrollView} from 'react-native-gesture-handler';
 
-const Direction = ({restaurant, setPlace}) => {
-  const [selectedOptionPlace, setSelectedOptionPlace] = useState('home');
+const Direction = ({
+  restaurant,
+  setPlace,
+  selectedOptionPlace,
+  setSelectedOptionPlace,
+  setTable,
+  setDescription,
+  setDetail,
+}) => {
   // const pickerRef = useRef();
   return (
     <View style={styles.container}>
       <Text style={styles.label}>¿Dónde deseas comerlo?</Text>
-
       <Picker
         // ref={pickerRef}
         style={styles.picker}
@@ -42,6 +48,7 @@ const Direction = ({restaurant, setPlace}) => {
               style={styles.input}
               placeholder="Nº piso, portal, etc."
               name="detail"
+              onChangeText={setDetail}
             />
           </ScrollView>
         </View>
@@ -58,6 +65,8 @@ const Direction = ({restaurant, setPlace}) => {
           required
           style={styles.input}
           placeholder="Nº de mesa."
+          keyboardType="numeric"
+          onChangeText={setTable}
           name="table"
         />
       )}
@@ -70,6 +79,7 @@ const Direction = ({restaurant, setPlace}) => {
           style={styles.textarea}
           placeholder="Ej: el bocadillo partido a la mitad"
           name="description"
+          onChangeText={setDescription}
         />
       </View>
     </View>

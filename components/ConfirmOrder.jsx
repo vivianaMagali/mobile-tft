@@ -7,13 +7,22 @@ import {
   ScrollView,
   TouchableOpacity,
   StyleSheet,
+  Modal,
 } from 'react-native';
 import {useNavigation} from '@react-navigation/native';
 import {formatDate, generateUID, stateOrders} from '../utils';
 import Direction from './Direction';
 import {firestore, auth} from '../firebaseConfig';
-import {doc, getDoc, setDoc, addDoc} from '@react-native-firebase/firestore';
+import {
+  doc,
+  getDoc,
+  setDoc,
+  addDoc,
+  getDocs,
+  collection,
+} from '@react-native-firebase/firestore';
 import {RestaurantContext} from '../context/context';
+import {FirebaseContext} from '../App';
 
 const ConfirmOrder = ({
   orders,
@@ -24,21 +33,24 @@ const ConfirmOrder = ({
 }) => {
   const [place, setPlace] = useState(null);
   const {restaurant} = useContext(RestaurantContext);
+  const {user, token} = useContext(FirebaseContext);
   const [inputValue, setInputValue] = useState('');
   const navigation = useNavigation();
   const [comandas, setComandas] = useState([]);
+  const [selectedOptionPlace, setSelectedOptionPlace] = useState('home');
+  const [detail, setDetail] = useState('');
+  const [description, setDescription] = useState('');
+  const [table, setTable] = useState('');
 
   const saveOrder = async () => {
     const dateNow = new Date();
-    // const comandasRef = collection(db, "restaurants", "4ZqlXIbiVNyvQugNbcl4", "comandas");
-
-    // const querySnapshot = await getDocs(comandasRef);
-    const restaurantDocRef = firestore()
-      .collection('restaurants')
-      .doc(restaurant.uid);
-
-    const comandasCollectionRef = restaurantDocRef.collection('comandas');
-    comandasCollectionRef.onSnapshot(snapshot => {
+    const comandasDocRef = doc(
+      firestore(),
+      'restaurants',
+      user.uidRestaurant,
+      'comandas',
+    );
+    comandasDocRef.onSnapshot(snapshot => {
       setComandas(snapshot.docs.map(doc => doc.data()));
     });
 
@@ -46,13 +58,13 @@ const ConfirmOrder = ({
     const waitTime = Math.floor(orderList * 5);
 
     const getData = () => {
-      if (category === 'home') {
+      if (selectedOptionPlace === 'home') {
         return {
           date: formatDate(dateNow),
           order: orders,
           state: stateOrders.RECIBIDO,
-          userUid: user.uid,
-          category,
+          userUid: user.uidUser,
+          category: selectedOptionPlace,
           placeId: place,
           direction: inputValue,
           detail,
@@ -62,14 +74,15 @@ const ConfirmOrder = ({
           orderId: generateUID(),
           waitTime,
           paymentStatus: false,
+          token,
         };
-      } else if (category === 'local') {
+      } else if (selectedOptionPlace === 'local') {
         return {
           date: formatDate(dateNow),
           order: orders,
           state: stateOrders.RECIBIDO,
-          userUid: user.uid,
-          category,
+          userUid: user.uidUser,
+          category: selectedOptionPlace,
           table,
           description,
           name: restaurant.basic_information.name,
@@ -77,97 +90,117 @@ const ConfirmOrder = ({
           orderId: generateUID(),
           waitTime,
           paymentStatus: false,
+          token, //si lo pide el camarero, solo el token del camarero, si lo pide el cliente, el token del cliente
+          //me faltaria algo que indicara a que camarero enviar la notificacion o se lo envio a todos los camareros?
         };
       } else {
         return {
           date: formatDate(dateNow),
           order: orders,
           state: stateOrders.RECIBIDO,
-          userUid: user.uid,
+          userUid: user.uidUser,
           direction: restaurant.basic_information.direction,
-          category,
+          category: selectedOptionPlace,
           description,
           name: restaurant.basic_information.name,
           total,
           orderId: generateUID(),
           waitTime,
           paymentStatus: false,
+          token,
         };
       }
     };
     const docData = getData();
+    console.log('el valor de docData es', docData);
     try {
-      const docRef = await addDoc(comandasRef, docData);
+      console.log('entro en el try');
+      const commandCollectionRef = firestore()
+        .collection('restaurants')
+        .doc(user.uidRestaurant)
+        .collection('comandas');
+      const docCommandRef = await addDoc(commandCollectionRef, docData);
       const updatedDocData = {
         ...docData,
-        uidOrder: docRef.id,
+        uidOrder: docCommandRef.id,
       };
-      await setDoc(docRef, updatedDocData);
-      const recordRef = collection(db, 'users', user.uid, 'record');
+      await setDoc(docCommandRef, updatedDocData);
+      const recordCollectionRef = firestore()
+        .collection('users')
+        .doc(user.uidUser)
+        .collection('record');
       const {userUid, ...rest} = docData;
-      const docRecordRef = await addDoc(recordRef, rest);
+      const docRecordRef = await addDoc(recordCollectionRef, rest);
       const updatedRecordDocData = {
         ...rest,
-        userUid: user.uid,
+        userUid: user.uidUser,
         recordId: docRecordRef.id,
       };
-      await setDoc(docRef, updatedDocData);
+      await setDoc(docCommandRef, updatedDocData);
       await setDoc(docRecordRef, updatedRecordDocData);
-      setOrders([]);
-      setShowConfirmOrderModal(false);
-      setShowOrderSummary(false);
+      // setOrders([]);
+      // setShowConfirmOrderModal(false);
+      // setShowOrderSummary(false);
+      navigation.navigate('Restaurant', {uidRestaurant: user.uidRestaurant});
     } catch (e) {
-      console.error('Error añadiendo el documento: ', e);
+      console.error('Error añadiendo el documento: ', e.error);
     }
   };
-
   return (
-    <View style={styles.modalContainer}>
-      <View style={styles.modalContent}>
-        <View style={styles.header}>
-          <Text style={styles.title}>Confirmar pedido</Text>
-          <TouchableOpacity onPress={() => setShowConfirmOrderModal(false)}>
-            <Text style={styles.closeButton}>×</Text>
-          </TouchableOpacity>
-        </View>
-        <ScrollView style={styles.scrollView}>
-          <View>
-            <Text style={styles.label}>Tus productos</Text>
-            {orders?.map((order, index) => (
-              <View key={`${order.name}-${index}`} style={styles.orderItem}>
-                <View style={styles.orderDetails}>
-                  <Text style={styles.orderText}>
-                    <Text style={styles.fontBold}>x{order.amount}</Text>{' '}
-                    {order.name}
-                  </Text>
-                  <Text style={styles.orderPrice}>
-                    {(order.amount * order.price)?.toFixed(2)}€
-                  </Text>
-                </View>
-                {order.ingredients && (
-                  <Text style={styles.ingredientsText}>
-                    ({order.ingredients})
-                  </Text>
-                )}
-              </View>
-            ))}
-          </View>
-          <View style={styles.totalContainer}>
-            <Text style={styles.totalText}>Total: {total?.toFixed(2)}€</Text>
-          </View>
-          <Direction restaurant={restaurant} setPlace={setPlace} />
-          <TextInput
-            style={styles.input}
-            onChangeText={setInputValue}
-            value={inputValue}
-            placeholder="Enter address"
-          />
-          <View style={styles.buttonContainer}>
-            <Button title="Aceptar" onPress={saveOrder} color="#008080" />
-          </View>
-        </ScrollView>
+    // <View style={styles.modalContainer}>
+    <Modal style={styles.modalContent}>
+      <View style={styles.header}>
+        <Text style={styles.title}>Confirmar pedido</Text>
+        <TouchableOpacity onPress={() => setShowConfirmOrderModal(false)}>
+          <Text style={styles.closeButton}>×</Text>
+        </TouchableOpacity>
       </View>
-    </View>
+      <ScrollView style={styles.scrollView}>
+        <View>
+          <Text style={styles.label}>Tus productos</Text>
+          {orders?.map((order, index) => (
+            <View key={`${order.name}-${index}`} style={styles.orderItem}>
+              <View style={styles.orderDetails}>
+                <Text style={styles.orderText}>
+                  <Text style={styles.fontBold}>x{order.amount}</Text>{' '}
+                  {order.name}
+                </Text>
+                <Text style={styles.orderPrice}>
+                  {(order.amount * order.price)?.toFixed(2)}€
+                </Text>
+              </View>
+              {order.ingredients && (
+                <Text style={styles.ingredientsText}>
+                  ({order.ingredients})
+                </Text>
+              )}
+            </View>
+          ))}
+        </View>
+        <View style={styles.totalContainer}>
+          <Text style={styles.totalText}>Total: {total?.toFixed(2)}€</Text>
+        </View>
+        <Direction
+          restaurant={restaurant}
+          setPlace={setPlace}
+          selectedOptionPlace={selectedOptionPlace}
+          setSelectedOptionPlace={setSelectedOptionPlace}
+          setTable={setTable}
+          setDescription={setDescription}
+          setDetail={setDetail}
+        />
+        {/* <TextInput
+          style={styles.input}
+          onChangeText={setInputValue}
+          value={inputValue}
+          placeholder="Enter address"
+        /> */}
+        <View style={styles.buttonContainer}>
+          <Button title="Aceptar" onPress={saveOrder} color="#008080" />
+        </View>
+      </ScrollView>
+    </Modal>
+    // </View>
   );
 };
 
