@@ -8,10 +8,9 @@ import ConfirmOrder from './components/ConfirmOrder';
 import Direction from './components/Direction';
 import {onAuthStateChanged} from '@react-native-firebase/auth';
 import {auth, firestore} from './firebaseConfig';
-import {doc, getDoc, deleteDoc} from '@react-native-firebase/firestore';
+import {doc, getDoc} from '@react-native-firebase/firestore';
 import messaging from '@react-native-firebase/messaging';
 import {Alert} from 'react-native';
-import axios from 'axios';
 import HomeWaiter from './components/HomeWaiter';
 import PendingOrdersOfWaiter from './components/PendingOrdersOfWaiter';
 
@@ -32,24 +31,11 @@ const requestUserPermission = async () => {
   }
 };
 
-//Envío el token del dispositivo móvil al servidor
-// const sendTokenToServer = async token => {
-//   console.log('token axios', token);
-//   try {
-//     await axios.post('https://ef9c-90-165-59-29.ngrok-free.app/api/token', {
-//       token,
-//     });
-//   } catch (error) {
-//     console.error('Failed to send token to server:', error);
-//   }
-// };
-
 //Obtengo el token del dispositivo móvil y lo almaceno en el estado
 const getToken = async setToken => {
   const fcmToken = await messaging().getToken();
   if (fcmToken) {
     setToken(fcmToken);
-    // sendTokenToServer(fcmToken); //para que lo quiero enviar al servidor ? si alli no lo voy a usar
   } else {
     console.log('Failed to get FCM token');
   }
@@ -81,20 +67,6 @@ const setupNotificationListener = () => {
     Alert.alert('A new FCM message arrived!', JSON.stringify(remoteMessage));
   });
 };
-
-// async function eliminarDocumentoPorID(collectionName, documentID) {
-//   try {
-//     // Referencia al documento
-//     const docRef = doc(firestore(), collectionName, documentID);
-
-//     // Elimina el documento
-//     await deleteDoc(docRef);
-
-//     console.log(`Documento con ID ${documentID} eliminado exitosamente.`);
-//   } catch (error) {
-//     console.error('Error al eliminar el documento: ', error);
-//   }
-// }
 
 function App() {
   const [user, setUser] = useState();

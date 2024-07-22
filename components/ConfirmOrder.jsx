@@ -36,7 +36,6 @@ const ConfirmOrder = ({
   const [table, setTable] = useState('');
 
   const saveOrder = async () => {
-    console.log('le di al boton saveOrder');
     const dateNow = new Date();
 
     const comandasCollectionRef = firestore()
@@ -87,16 +86,14 @@ const ConfirmOrder = ({
       }
     };
 
-    console.log('restaurantt', restaurant);
     const docData = getData();
-    console.log('el valor de docData es', docData);
     try {
       // Añadir comanda a la bd de comandas del restaurant
       const commandCollectionRef = firestore()
         .collection('restaurants')
         .doc(restaurant.uid)
         .collection('comandas');
-      const commandDocRef = await commandCollectionRef.add(getData());
+      const commandDocRef = await commandCollectionRef.add(docData);
       const updatedDocData = {
         ...getData(),
         uidOrder: commandDocRef.id,
@@ -108,15 +105,15 @@ const ConfirmOrder = ({
         .collection('users')
         .doc(user.uidUser)
         .collection('record');
-      const recordDocRef = await recordCollectionRef.add(getData());
+      const recordDocRef = await recordCollectionRef.add(docData);
       const updatedDocRecord = {
         ...getData(),
         uidOrder: recordDocRef.id,
       };
       await setDoc(recordDocRef, updatedDocRecord);
 
-      console.log('restaurant uiddd', restaurant.uid);
       // Volver a la pagina del restaurant
+      console.log('restaurant uiddd', restaurant.uid);
       navigation.navigate('Restaurant', {uidRestaurant: restaurant.uid});
     } catch (e) {
       console.error('Error añadiendo el documento: ', e);
