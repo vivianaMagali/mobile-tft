@@ -5,7 +5,7 @@ import {GooglePlacesAutocomplete} from 'react-native-google-places-autocomplete'
 import {ScrollView} from 'react-native-gesture-handler';
 
 const Direction = ({
-  restaurant,
+  direction,
   setPlace,
   selectedOptionPlace,
   setSelectedOptionPlace,
@@ -55,9 +55,7 @@ const Direction = ({
       )}
 
       {selectedOptionPlace === 'pickup' && (
-        <Text style={styles.pickupText}>
-          {restaurant?.basic_information.direction}
-        </Text>
+        <Text style={styles.pickupText}>{direction}</Text>
       )}
 
       {selectedOptionPlace === 'local' && (

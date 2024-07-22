@@ -56,7 +56,6 @@ const OrderSummary = ({
         console.error('Error añadiendo el documento: ', e);
       }
       setShowOrderSummary(false);
-      console.log('entre en el if');
       navigation.navigate('HomeWaiter');
     } else {
       setShowConfirmOrderModal(true);

@@ -12,7 +12,7 @@ import {
 import {useNavigation} from '@react-navigation/native';
 import {formatDate, generateUID, stateOrders} from '../utils';
 import Direction from './Direction';
-import {firestore, auth} from '../firebaseConfig';
+import {firestore} from '../firebaseConfig';
 import {
   doc,
   getDoc,
@@ -43,108 +43,128 @@ const ConfirmOrder = ({
   const [table, setTable] = useState('');
 
   const saveOrder = async () => {
+    console.log('le di al boton saveOrder');
     const dateNow = new Date();
-    const comandasDocRef = doc(
-      firestore(),
-      'restaurants',
-      user.uidRestaurant,
-      'comandas',
-    );
-    comandasDocRef.onSnapshot(snapshot => {
+
+    const comandasCollectionRef = firestore()
+      .collection('restaurants')
+      .doc(restaurant.uid)
+      .collection('comandas');
+
+    // Necesitas una función de efecto o similar para obtener las comandas y establecer el estado
+    comandasCollectionRef.onSnapshot(snapshot => {
       setComandas(snapshot.docs.map(doc => doc.data()));
     });
 
-    const orderList = comandas.size;
+    console.log('comandas', comandas);
+
+    const orderList = comandas.length; // Cambiado a length ya que comandas es un array
     const waitTime = Math.floor(orderList * 5);
 
     const getData = () => {
+      const baseData = {
+        date: formatDate(dateNow),
+        order: orders,
+        state: stateOrders.RECIBIDO,
+        userUid: user.uidUser,
+        category: selectedOptionPlace,
+        description,
+        name: restaurant?.basic_information?.name,
+        total,
+        orderId: generateUID(),
+        waitTime,
+        paymentStatus: false,
+        token,
+      };
+
       if (selectedOptionPlace === 'home') {
         return {
-          date: formatDate(dateNow),
-          order: orders,
-          state: stateOrders.RECIBIDO,
-          userUid: user.uidUser,
-          category: selectedOptionPlace,
+          ...baseData,
           placeId: place,
           direction: inputValue,
           detail,
-          description,
-          name: restaurant.basic_information.name,
-          total,
-          orderId: generateUID(),
-          waitTime,
-          paymentStatus: false,
-          token,
         };
       } else if (selectedOptionPlace === 'local') {
         return {
-          date: formatDate(dateNow),
-          order: orders,
-          state: stateOrders.RECIBIDO,
-          userUid: user.uidUser,
-          category: selectedOptionPlace,
+          ...baseData,
           table,
-          description,
-          name: restaurant.basic_information.name,
-          total,
-          orderId: generateUID(),
-          waitTime,
-          paymentStatus: false,
-          token, //si lo pide el camarero, solo el token del camarero, si lo pide el cliente, el token del cliente
-          //me faltaria algo que indicara a que camarero enviar la notificacion o se lo envio a todos los camareros?
         };
       } else {
         return {
-          date: formatDate(dateNow),
-          order: orders,
-          state: stateOrders.RECIBIDO,
-          userUid: user.uidUser,
-          direction: restaurant.basic_information.direction,
-          category: selectedOptionPlace,
-          description,
-          name: restaurant.basic_information.name,
-          total,
-          orderId: generateUID(),
-          waitTime,
-          paymentStatus: false,
-          token,
+          ...baseData,
+          direction: restaurant?.basic_information?.direction,
         };
       }
     };
+
+    console.log('restaurantt', restaurant);
     const docData = getData();
     console.log('el valor de docData es', docData);
     try {
-      console.log('entro en el try');
+      // Añadir comanda a la bd de comandas del restaurant
       const commandCollectionRef = firestore()
         .collection('restaurants')
-        .doc(user.uidRestaurant)
+        .doc(restaurant.uid)
         .collection('comandas');
-      const docCommandRef = await addDoc(commandCollectionRef, docData);
+      const commandDocRef = await commandCollectionRef.add(getData());
       const updatedDocData = {
-        ...docData,
-        uidOrder: docCommandRef.id,
+        ...getData(),
+        uidOrder: commandDocRef.id,
       };
-      await setDoc(docCommandRef, updatedDocData);
+      await setDoc(commandDocRef, updatedDocData);
+
+      // Añadir comanda a la bd de record del usuario
       const recordCollectionRef = firestore()
         .collection('users')
         .doc(user.uidUser)
         .collection('record');
-      const {userUid, ...rest} = docData;
-      const docRecordRef = await addDoc(recordCollectionRef, rest);
-      const updatedRecordDocData = {
-        ...rest,
-        userUid: user.uidUser,
-        recordId: docRecordRef.id,
+      const recordDocRef = await recordCollectionRef.add(getData());
+      const updatedDocRecord = {
+        ...getData(),
+        uidOrder: recordDocRef.id,
       };
-      await setDoc(docCommandRef, updatedDocData);
-      await setDoc(docRecordRef, updatedRecordDocData);
-      // setOrders([]);
-      // setShowConfirmOrderModal(false);
-      // setShowOrderSummary(false);
-      navigation.navigate('Restaurant', {uidRestaurant: user.uidRestaurant});
+      await setDoc(recordDocRef, updatedDocRecord);
+
+      console.log('restaurant uiddd', restaurant.uid);
+      // Volver a la pagina del restaurant
+      navigation.navigate('Restaurant', {uidRestaurant: restaurant.uid});
     } catch (e) {
-      console.error('Error añadiendo el documento: ', e.error);
+      console.error('Error añadiendo el documento: ', e);
     }
+    // try {
+    //   console.log('entro en el try');
+
+    //   const docCommandRef = await comandasCollectionRef.add(docData);
+    //   const updatedDocData = {
+    //     ...docData,
+    //     uidOrder: docCommandRef.id,
+    //   };
+
+    //   console.log('actualizarrr datossss', updatedDocData);
+    //   await docCommandRef.setDoc(updatedDocData);
+
+    //   const recordCollectionRef = firestore()
+    //     .collection('users')
+    //     .doc(user.uidUser)
+    //     .collection('record');
+
+    //   const {userUid, ...rest} = docData;
+    //   const docRecordRef = await recordCollectionRef.add(rest);
+    //   const updatedRecordDocData = {
+    //     ...rest,
+    //     userUid: user.uidUser,
+    //     recordId: docRecordRef.id,
+    //   };
+
+    //   await docRecordRef.setDoc(updatedRecordDocData);
+
+    //   // setOrders([]);
+    //   // setShowConfirmOrderModal(false);
+    //   // setShowOrderSummary(false);
+    //   navigation.navigate('Restaurant', {uidRestaurant: user.uidRestaurant});
+    // } catch (e) {
+    //   console.error('Error añadiendo el documento: ', e);
+    // }
   };
   return (
     // <View style={styles.modalContainer}>
@@ -181,7 +201,7 @@ const ConfirmOrder = ({
           <Text style={styles.totalText}>Total: {total?.toFixed(2)}€</Text>
         </View>
         <Direction
-          restaurant={restaurant}
+          direction={restaurant?.basic_information?.direction}
           setPlace={setPlace}
           selectedOptionPlace={selectedOptionPlace}
           setSelectedOptionPlace={setSelectedOptionPlace}

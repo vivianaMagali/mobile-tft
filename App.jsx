@@ -8,7 +8,7 @@ import ConfirmOrder from './components/ConfirmOrder';
 import Direction from './components/Direction';
 import {onAuthStateChanged} from '@react-native-firebase/auth';
 import {auth, firestore} from './firebaseConfig';
-import {doc, getDoc} from '@react-native-firebase/firestore';
+import {doc, getDoc, deleteDoc} from '@react-native-firebase/firestore';
 import messaging from '@react-native-firebase/messaging';
 import {Alert} from 'react-native';
 import axios from 'axios';
@@ -81,6 +81,20 @@ const setupNotificationListener = () => {
     Alert.alert('A new FCM message arrived!', JSON.stringify(remoteMessage));
   });
 };
+
+// async function eliminarDocumentoPorID(collectionName, documentID) {
+//   try {
+//     // Referencia al documento
+//     const docRef = doc(firestore(), collectionName, documentID);
+
+//     // Elimina el documento
+//     await deleteDoc(docRef);
+
+//     console.log(`Documento con ID ${documentID} eliminado exitosamente.`);
+//   } catch (error) {
+//     console.error('Error al eliminar el documento: ', error);
+//   }
+// }
 
 function App() {
   const [user, setUser] = useState();

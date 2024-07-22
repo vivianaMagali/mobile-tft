@@ -32,7 +32,6 @@ const PendingOrdersOfWaiter = ({route}) => {
     };
   }, [user.uidRestaurant, user.uidUser]);
 
-  console.log('comandas', comandas);
   return (
     <View>
       <Text>prueba</Text>

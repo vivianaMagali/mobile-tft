@@ -29,7 +29,8 @@ const Restaurant = ({route}) => {
       .doc(uidRestaurant);
     const unsubscribeBasicInformation = restaurantDocRef.onSnapshot(
       snapshot => {
-        setRestaurant(snapshot.data().basic_information);
+        setRestaurant(snapshot.data());
+        console.log('data', snapshot.data());
       },
     );
 
