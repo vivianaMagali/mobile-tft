@@ -1,12 +1,11 @@
-import React, {useState, useEffect, useContext, createContext} from 'react';
-import {View, Text, StyleSheet, ScrollView, Modal} from 'react-native';
+import React, {useState, useEffect} from 'react';
+import {View, Text, StyleSheet, ScrollView} from 'react-native';
 // import { useRoute } from '@react-navigation/native';
-import {firestore, auth} from '../firebaseConfig';
+import {firestore} from '../firebaseConfig';
 import MenuCard from './MenuCard';
 import OrderSummary from './OrderSummary';
 import ConfirmOrder from './ConfirmOrder';
 import {RestaurantContext} from '../context/context';
-// import {FirebaseContext} from '../App';
 import Searcher from './Searcher';
 // import Header from './Header';
 
@@ -21,8 +20,6 @@ const Restaurant = ({route}) => {
   const [showOrderSummary, setShowOrderSummary] = useState(false);
   const [products, setProducts] = useState([]);
   const [filteredProducts, setFilteredProducts] = useState([]);
-  // const {user} = useContext(FirebaseContext);
-
   useEffect(() => {
     const restaurantDocRef = firestore()
       .collection('restaurants')
@@ -54,7 +51,7 @@ const Restaurant = ({route}) => {
   useEffect(() => {
     const combinedProducts = [...menus, ...drinks];
     setProducts(combinedProducts);
-    setFilteredProducts(combinedProducts); // Inicializamos filteredProducts con todos los productos
+    setFilteredProducts(combinedProducts); // Inicializo filteredProducts con todos los productos
   }, [menus, drinks]);
 
   const filterProducts = text => {
@@ -82,7 +79,6 @@ const Restaurant = ({route}) => {
         )}
         <ScrollView contentContainerStyle={styles.scrollView}>
           <View style={styles.section}>
-            {/* <Text style={styles.heading}>Comidas</Text> */}
             <View style={styles.menuContainer}>
               {filteredProducts?.length > 0 ? (
                 filteredProducts.map(product => (
@@ -98,19 +94,6 @@ const Restaurant = ({route}) => {
                 <Text>No hay ningun producto que coincida con la busqueda</Text>
               )}
             </View>
-            {/* <Text style={styles.heading}>Bebidas</Text>
-            <View style={styles.menuContainer}>
-              {drinks?.length > 0 &&
-                drinks.map(drink => (
-                  <MenuCard
-                    key={drink.name}
-                    product={drink}
-                    orders={orders}
-                    setOrders={setOrders}
-                    setShowOrderSummary={setShowOrderSummary}
-                  />
-                ))}
-            </View> */}
           </View>
           {showOrderSummary && (
             <OrderSummary

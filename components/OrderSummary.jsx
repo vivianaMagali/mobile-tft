@@ -1,6 +1,6 @@
 import React, {useContext, useEffect, useState} from 'react';
 import {View, Text, Button, StyleSheet} from 'react-native';
-import {doc, getDoc, setDoc, addDoc} from '@react-native-firebase/firestore';
+import {setDoc} from '@react-native-firebase/firestore';
 import {FirebaseContext} from '../App';
 import {firestore} from '../firebaseConfig';
 import {formatDate, generateUID, stateOrders} from '../utils';

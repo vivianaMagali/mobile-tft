@@ -34,34 +34,6 @@ const Login = () => {
   const handleSubmit = async e => {
     e.preventDefault();
 
-    // if (!registering) {
-    //   try {
-    //     await signInWithEmailAndPassword(auth(), email, password);
-    //     setError('');
-    //     const user = auth().currentUser;
-
-    //     const userDocRef = doc(firestore(), 'users', user.uid);
-    //     const userDoc = await getDoc(userDocRef);
-
-    //     if (userDoc.exists) {
-    //       const userData = userDoc.data();
-    //       const userRole = userData.role;
-
-    //       if (userRole === 'Camarero') {
-    //         navigation.navigate('HomeWaiter');
-    //       } else {
-    //         navigation.navigate('Home');
-    //       }
-    //       //guardar o actualizar el token para el usuario que sea
-    //       await setDoc(userDocRef, {token: token, ...userDoc.data()});
-    //     } else {
-    //       console.log('no entra'); // Si el documento del usuario no existe
-    //     }
-    //   } catch (error) {
-    //     console.error('Error durante el proceso de inicio de sesión:', error); // Añade esto para capturar cualquier error
-    //   }
-    // }
-
     if (!registering) {
       try {
         await signInWithEmailAndPassword(auth(), email, password);

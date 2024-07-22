@@ -13,14 +13,7 @@ import {useNavigation} from '@react-navigation/native';
 import {formatDate, generateUID, stateOrders} from '../utils';
 import Direction from './Direction';
 import {firestore} from '../firebaseConfig';
-import {
-  doc,
-  getDoc,
-  setDoc,
-  addDoc,
-  getDocs,
-  collection,
-} from '@react-native-firebase/firestore';
+import {setDoc} from '@react-native-firebase/firestore';
 import {RestaurantContext} from '../context/context';
 import {FirebaseContext} from '../App';
 
@@ -51,14 +44,11 @@ const ConfirmOrder = ({
       .doc(restaurant.uid)
       .collection('comandas');
 
-    // Necesitas una función de efecto o similar para obtener las comandas y establecer el estado
     comandasCollectionRef.onSnapshot(snapshot => {
       setComandas(snapshot.docs.map(doc => doc.data()));
     });
 
-    console.log('comandas', comandas);
-
-    const orderList = comandas.length; // Cambiado a length ya que comandas es un array
+    const orderList = comandas.length;
     const waitTime = Math.floor(orderList * 5);
 
     const getData = () => {
@@ -131,40 +121,6 @@ const ConfirmOrder = ({
     } catch (e) {
       console.error('Error añadiendo el documento: ', e);
     }
-    // try {
-    //   console.log('entro en el try');
-
-    //   const docCommandRef = await comandasCollectionRef.add(docData);
-    //   const updatedDocData = {
-    //     ...docData,
-    //     uidOrder: docCommandRef.id,
-    //   };
-
-    //   console.log('actualizarrr datossss', updatedDocData);
-    //   await docCommandRef.setDoc(updatedDocData);
-
-    //   const recordCollectionRef = firestore()
-    //     .collection('users')
-    //     .doc(user.uidUser)
-    //     .collection('record');
-
-    //   const {userUid, ...rest} = docData;
-    //   const docRecordRef = await recordCollectionRef.add(rest);
-    //   const updatedRecordDocData = {
-    //     ...rest,
-    //     userUid: user.uidUser,
-    //     recordId: docRecordRef.id,
-    //   };
-
-    //   await docRecordRef.setDoc(updatedRecordDocData);
-
-    //   // setOrders([]);
-    //   // setShowConfirmOrderModal(false);
-    //   // setShowOrderSummary(false);
-    //   navigation.navigate('Restaurant', {uidRestaurant: user.uidRestaurant});
-    // } catch (e) {
-    //   console.error('Error añadiendo el documento: ', e);
-    // }
   };
   return (
     // <View style={styles.modalContainer}>

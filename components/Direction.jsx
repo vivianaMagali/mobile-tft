@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React from 'react';
 import {View, Text, TextInput, StyleSheet} from 'react-native';
 import {Picker} from '@react-native-picker/picker';
 import {GooglePlacesAutocomplete} from 'react-native-google-places-autocomplete';
