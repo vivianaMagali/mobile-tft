@@ -113,7 +113,8 @@ const ConfirmOrder = ({
       await setDoc(recordDocRef, updatedDocRecord);
 
       // Volver a la pagina del restaurant
-      console.log('restaurant uiddd', restaurant.uid);
+      setShowConfirmOrderModal(false);
+      setShowOrderSummary(false);
       navigation.navigate('Restaurant', {uidRestaurant: restaurant.uid});
     } catch (e) {
       console.error('Error añadiendo el documento: ', e);
