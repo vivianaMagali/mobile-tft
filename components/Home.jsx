@@ -6,6 +6,7 @@ import {
   Text,
   View,
   TouchableOpacity,
+  StyleSheet,
 } from 'react-native';
 import {useNavigation} from '@react-navigation/native';
 import firestore from '@react-native-firebase/firestore';
@@ -56,7 +57,9 @@ const Home = () => {
   return (
     <SafeAreaView>
       <ScrollView>
-        <Text>¿Dónde deseas comer?</Text>
+        <View style={styles.container}>
+          <Text style={styles.title}>¿Dónde deseas comer?</Text>
+        </View>
         <Searcher filterList={filterRestaurants} />
         <View>
           {filteredRestaurants?.length > 0
@@ -79,5 +82,20 @@ const Home = () => {
     </SafeAreaView>
   );
 };
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 24,
+  },
+  title: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    textAlign: 'center',
+    color: '#008080',
+  },
+});
 
 export default Home;

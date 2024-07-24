@@ -21,7 +21,6 @@ import logo from '../assets/logo.png';
 import {FirebaseContext} from '../App';
 import EyeOpen from './icons/EyeOpen';
 import EyeClosed from './icons/EyeClosed';
-import ClockIcon from './icons/ClockIcon';
 
 const Login = () => {
   const [registering, setRegistering] = useState(false);
@@ -158,6 +157,7 @@ const Login = () => {
         <Button
           title={!registering ? 'Iniciar sesión' : 'Registrarse'}
           onPress={handleSubmit}
+          color="#38b2ac"
         />
         {error ? <Text style={styles.error}>{error}</Text> : null}
         <Text style={styles.switchText}>
@@ -190,6 +190,9 @@ const Login = () => {
 };
 
 const styles = StyleSheet.create({
+  button: {
+    backgroundColor: '#38b2ac',
+  },
   container: {
     flex: 1,
     justifyContent: 'center',
@@ -233,13 +236,13 @@ const styles = StyleSheet.create({
     borderColor: '#ccc',
     borderRadius: 5,
     padding: 8,
-    paddingRight: 40, // Espacio para el icono
+    paddingRight: 40,
   },
   icon: {
     position: 'absolute',
     right: 10,
     top: '50%',
-    transform: [{translateY: -12}], // Ajusta la posición vertical del icono
+    transform: [{translateY: -12}],
   },
   error: {
     color: 'red',
@@ -250,7 +253,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   switchLink: {
-    color: '#007BFF',
+    color: '#008080',
   },
 });
 
