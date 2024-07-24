@@ -15,11 +15,13 @@ import {
   createUserWithEmailAndPassword,
 } from '@react-native-firebase/auth';
 import {doc, getDoc, setDoc} from '@react-native-firebase/firestore';
-import auth from '@react-native-firebase/auth';
 import firestore from '@react-native-firebase/firestore';
+import auth from '@react-native-firebase/auth';
 import logo from '../assets/logo.png';
-import Icon from 'react-native-vector-icons/MaterialIcons';
 import {FirebaseContext} from '../App';
+import EyeOpen from './icons/EyeOpen';
+import EyeClosed from './icons/EyeClosed';
+import ClockIcon from './icons/ClockIcon';
 
 const Login = () => {
   const [registering, setRegistering] = useState(false);
@@ -95,7 +97,7 @@ const Login = () => {
     }
   };
 
-  const showVisible = () => {
+  const togglePasswordVisibility = () => {
     setIsPasswordVisible(!isPasswordVisible);
   };
 
@@ -108,56 +110,56 @@ const Login = () => {
         </Text>
       </View>
       <View style={styles.formContainer}>
-        <View>
-          {registering ? (
-            <>
-              <Text style={styles.label}>Nombre*</Text>
-              <TextInput
-                style={styles.input}
-                autoComplete="name"
-                value={name}
-                onChangeText={setName}
-              />
-              <Text style={styles.label}>Teléfono*</Text>
-              <TextInput
-                style={styles.input}
-                autoComplete="phone"
-                keyboardType="numeric"
-                value={phone}
-                onChangeText={setPhone}
-              />
-            </>
-          ) : null}
-          <Text style={styles.label}>Correo electrónico*</Text>
-          <TextInput
-            style={styles.input}
-            autoComplete="email"
-            value={email}
-            onChangeText={setEmail}
-          />
-          <Text style={styles.label}>Contraseña*</Text>
-          <View>
+        {registering && (
+          <>
+            <Text style={styles.label}>Nombre*</Text>
             <TextInput
               style={styles.input}
-              autoComplete="password"
-              onChangeText={setPassword}
-              secureTextEntry={!isPasswordVisible}
-              value={password}
+              autoComplete="name"
+              value={name}
+              onChangeText={setName}
             />
-            <TouchableOpacity onPress={showVisible} style={styles.icon}>
-              <Icon
-                name={isPasswordVisible ? 'visibility' : 'visibility-off'}
-                size={24}
-                color="grey"
-              />
-            </TouchableOpacity>
-          </View>
-          <Button
-            title={!registering ? 'Iniciar sesión' : 'Registrarse'}
-            onPress={handleSubmit}
+            <Text style={styles.label}>Teléfono*</Text>
+            <TextInput
+              style={styles.input}
+              autoComplete="phone"
+              keyboardType="numeric"
+              value={phone}
+              onChangeText={setPhone}
+            />
+          </>
+        )}
+        <Text style={styles.label}>Correo electrónico*</Text>
+        <TextInput
+          style={styles.input}
+          autoComplete="email"
+          value={email}
+          onChangeText={setEmail}
+        />
+        <Text style={styles.label}>Contraseña*</Text>
+        <View style={styles.passwordContainer}>
+          <TextInput
+            style={styles.inputWithIcon}
+            autoComplete="password"
+            onChangeText={setPassword}
+            secureTextEntry={!isPasswordVisible}
+            value={password}
           />
-          {error ? <Text style={styles.error}>{error}</Text> : null}
+          <TouchableOpacity
+            onPress={togglePasswordVisibility}
+            style={styles.icon}>
+            {isPasswordVisible ? (
+              <EyeOpen size={24} color="#38b2ac" />
+            ) : (
+              <EyeClosed size={24} color="#38b2ac" />
+            )}
+          </TouchableOpacity>
         </View>
+        <Button
+          title={!registering ? 'Iniciar sesión' : 'Registrarse'}
+          onPress={handleSubmit}
+        />
+        {error ? <Text style={styles.error}>{error}</Text> : null}
         <Text style={styles.switchText}>
           {!registering ? (
             <>
@@ -223,11 +225,21 @@ const styles = StyleSheet.create({
     marginVertical: 10,
   },
   passwordContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    position: 'relative',
+    marginVertical: 10,
   },
-  visibilityToggle: {
-    marginLeft: 10,
+  inputWithIcon: {
+    borderWidth: 1,
+    borderColor: '#ccc',
+    borderRadius: 5,
+    padding: 8,
+    paddingRight: 40, // Espacio para el icono
+  },
+  icon: {
+    position: 'absolute',
+    right: 10,
+    top: '50%',
+    transform: [{translateY: -12}], // Ajusta la posición vertical del icono
   },
   error: {
     color: 'red',
