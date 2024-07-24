@@ -2,7 +2,7 @@ import React, {useContext, useEffect, useState} from 'react';
 import {View, Text, Button, StyleSheet} from 'react-native';
 import {setDoc} from '@react-native-firebase/firestore';
 import {FirebaseContext} from '../App';
-import {firestore} from '../firebaseConfig';
+import firestore from '@react-native-firebase/firestore';
 import {formatDate, generateUID, stateOrders} from '../utils';
 import {TextInput} from 'react-native-gesture-handler';
 import {useNavigation} from '@react-navigation/native';

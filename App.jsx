@@ -6,8 +6,8 @@ import Restaurant from './components/Restaurant';
 import Login from './components/Login';
 import ConfirmOrder from './components/ConfirmOrder';
 import Direction from './components/Direction';
-import {onAuthStateChanged} from '@react-native-firebase/auth';
-import {auth, firestore} from './firebaseConfig';
+import auth from '@react-native-firebase/auth';
+import firestore from '@react-native-firebase/firestore';
 import {doc, getDoc} from '@react-native-firebase/firestore';
 import messaging from '@react-native-firebase/messaging';
 import {Alert} from 'react-native';
@@ -82,7 +82,7 @@ function App() {
   }, []);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth(), async user => {
+    const unsubscribe = auth().onAuthStateChanged(async user => {
       if (user) {
         const userDocRef = doc(firestore(), 'users', user.uid);
         const userDoc = await getDoc(userDocRef);

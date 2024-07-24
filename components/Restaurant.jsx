@@ -1,7 +1,7 @@
 import React, {useState, useEffect} from 'react';
 import {View, Text, StyleSheet, ScrollView} from 'react-native';
 // import { useRoute } from '@react-navigation/native';
-import {firestore} from '../firebaseConfig';
+import firestore from '@react-native-firebase/firestore';
 import MenuCard from './MenuCard';
 import OrderSummary from './OrderSummary';
 import ConfirmOrder from './ConfirmOrder';
@@ -20,6 +20,7 @@ const Restaurant = ({route}) => {
   const [showOrderSummary, setShowOrderSummary] = useState(false);
   const [products, setProducts] = useState([]);
   const [filteredProducts, setFilteredProducts] = useState([]);
+  const [quantities, setQuantities] = useState({});
   useEffect(() => {
     const restaurantDocRef = firestore()
       .collection('restaurants')
@@ -63,6 +64,10 @@ const Restaurant = ({route}) => {
       setFilteredProducts(filtered);
     }
   };
+
+  const resetQuantities = () => {
+    setQuantities({});
+  };
   return (
     <RestaurantContext.Provider value={{restaurant}}>
       <Searcher filterList={filterProducts} />
@@ -70,10 +75,10 @@ const Restaurant = ({route}) => {
         {showConfirmOrderModal && (
           <ConfirmOrder
             orders={orders}
-            setOrders={setOrders}
             setShowConfirmOrderModal={setShowConfirmOrderModal}
             setShowOrderSummary={setShowOrderSummary}
             total={total}
+            resetQuantities={resetQuantities}
           />
         )}
         <ScrollView contentContainerStyle={styles.scrollView}>
@@ -87,6 +92,13 @@ const Restaurant = ({route}) => {
                     orders={orders}
                     setOrders={setOrders}
                     setShowOrderSummary={setShowOrderSummary}
+                    quantity={quantities[product.name] || 0}
+                    setQuantity={newQuantity =>
+                      setQuantities(prev => ({
+                        ...prev,
+                        [product.name]: newQuantity,
+                      }))
+                    }
                   />
                 ))
               ) : (

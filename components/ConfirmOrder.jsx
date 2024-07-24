@@ -12,17 +12,17 @@ import {
 import {useNavigation} from '@react-navigation/native';
 import {formatDate, generateUID, stateOrders} from '../utils';
 import Direction from './Direction';
-import {firestore} from '../firebaseConfig';
+import firestore from '@react-native-firebase/firestore';
 import {setDoc} from '@react-native-firebase/firestore';
 import {RestaurantContext} from '../context/context';
 import {FirebaseContext} from '../App';
 
 const ConfirmOrder = ({
   orders,
-  setOrders,
   setShowConfirmOrderModal,
   setShowOrderSummary,
   total,
+  resetQuantities,
 }) => {
   const [place, setPlace] = useState(null);
   const {restaurant} = useContext(RestaurantContext);
@@ -112,9 +112,10 @@ const ConfirmOrder = ({
       };
       await setDoc(recordDocRef, updatedDocRecord);
 
-      // Volver a la pagina del restaurant
       setShowConfirmOrderModal(false);
       setShowOrderSummary(false);
+      resetQuantities();
+      // Volver a la pagina del restaurant
       navigation.navigate('Restaurant', {uidRestaurant: restaurant.uid});
     } catch (e) {
       console.error('Error añadiendo el documento: ', e);

@@ -15,7 +15,8 @@ import {
   createUserWithEmailAndPassword,
 } from '@react-native-firebase/auth';
 import {doc, getDoc, setDoc} from '@react-native-firebase/firestore';
-import {firestore, auth} from '../firebaseConfig';
+import auth from '@react-native-firebase/auth';
+import firestore from '@react-native-firebase/firestore';
 import logo from '../assets/logo.png';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import {FirebaseContext} from '../App';

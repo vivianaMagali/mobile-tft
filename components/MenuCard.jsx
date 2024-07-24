@@ -1,4 +1,4 @@
-import React, {useContext, useEffect, useState} from 'react';
+import React, {useContext, useEffect} from 'react';
 import {
   View,
   Text,
@@ -9,8 +9,14 @@ import {
 } from 'react-native';
 import {FirebaseContext} from '../App';
 
-const MenuCard = ({product, orders, setOrders, setShowOrderSummary}) => {
-  const [quantity, setQuantity] = useState(0);
+const MenuCard = ({
+  product,
+  orders,
+  setOrders,
+  setShowOrderSummary,
+  quantity,
+  setQuantity,
+}) => {
   const {user} = useContext(FirebaseContext);
 
   useEffect(() => {

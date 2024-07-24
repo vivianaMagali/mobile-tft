@@ -1,7 +1,7 @@
 import React, {useContext, useEffect, useState} from 'react';
 import {View, Text, Button, StyleSheet} from 'react-native';
 import {FirebaseContext} from '../App';
-import {firestore} from '../firebaseConfig';
+import firestore from '@react-native-firebase/firestore';
 
 const PendingOrdersOfWaiter = ({route}) => {
   const {user} = useContext(FirebaseContext);
