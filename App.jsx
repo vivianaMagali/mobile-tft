@@ -13,6 +13,7 @@ import messaging from '@react-native-firebase/messaging';
 import {Alert} from 'react-native';
 import HomeWaiter from './components/HomeWaiter';
 import PendingOrdersOfWaiter from './components/PendingOrdersOfWaiter';
+import Profile from './components/Profile';
 
 const Stack = createStackNavigator();
 export const FirebaseContext = createContext();
@@ -112,6 +113,7 @@ function App() {
           <Stack.Screen name="ConfirmOrder" component={ConfirmOrder} />
           <Stack.Screen name="Direction" component={Direction} />
           <Stack.Screen name="HomeWaiter" component={HomeWaiter} />
+          <Stack.Screen name="Profile" component={Profile} />
           <Stack.Screen
             name="PendingOrdersOfWaiter"
             component={PendingOrdersOfWaiter}

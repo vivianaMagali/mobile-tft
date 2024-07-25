@@ -9,6 +9,7 @@ import {RestaurantContext} from '../context/context';
 import Searcher from './Searcher';
 import {typeProducts, typeRole} from '../utils';
 import {FirebaseContext} from '../App';
+import Header from './Header';
 // import Header from './Header';
 
 const Restaurant = ({route}) => {
@@ -73,10 +74,10 @@ const Restaurant = ({route}) => {
   }, [uidRestaurant]);
 
   useEffect(() => {
-    const combinedProducts = [...menus, ...drinks];
+    const combinedProducts = [...menus, ...drinks, ...mains, ...starters];
     setProducts(combinedProducts);
-    setFilteredProducts(combinedProducts); // Inicializo filteredProducts con todos los productos
-  }, [menus, drinks]);
+    setFilteredProducts(combinedProducts);
+  }, [menus, drinks, mains, starters]);
 
   const filterProducts = text => {
     if (text.trim() === '') {
@@ -97,7 +98,7 @@ const Restaurant = ({route}) => {
       {user?.role === typeRole.waiter && (
         <Searcher filterList={filterProducts} />
       )}
-      {!user?.role && <Text>Prueba</Text>}
+      {!user?.role && <Header />}
       <View style={styles.container}>
         {showConfirmOrderModal && (
           <ConfirmOrder

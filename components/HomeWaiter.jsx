@@ -21,7 +21,6 @@ const HomeWaiter = () => {
       await auth().signOut();
       navigation.navigate('Login');
     } catch (error) {
-      Alert.alert('Error', 'No se pudo cerrar sesión. Inténtalo de nuevo.');
       console.error('Error cerrando sesión: ', error);
     }
   };

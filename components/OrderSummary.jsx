@@ -9,11 +9,11 @@ import {useNavigation} from '@react-navigation/native';
 
 const OrderSummary = ({
   orders,
-  setShowConfirmOrderModal,
-  showOrderSummary,
-  setShowOrderSummary,
+  setShowConfirmOrderModal = false,
+  showOrderSummary = false,
+  setShowOrderSummary = false,
   total,
-  setTotal,
+  setTotal = () => {},
 }) => {
   const {user} = useContext(FirebaseContext);
   const dateNow = new Date();

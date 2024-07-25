@@ -1,40 +1,85 @@
 import React, {useEffect, useState} from 'react';
-import {View, Text, Image, StyleSheet} from 'react-native';
+import {
+  View,
+  Text,
+  Image,
+  StyleSheet,
+  PermissionsAndroid,
+  Platform,
+} from 'react-native';
 // import { getCurrentLocation, haversineDistance } from "../utils";
 import PhoneIcon from './icons/PhoneIcon';
 import ClockIcon from './icons/ClockIcon';
 import MapPinIcon from './icons/MapPinIcon';
+import Geolocation from 'react-native-geolocation-service';
+import {haversineDistance} from '../utils';
 
 const RestaurantCard = ({restaurant}) => {
-  //   const [distance, setDistance] = useState();
+  const [locationCurrent, setLocationCurrent] = useState(null);
+  const [distance, setDistance] = useState();
 
-  //   const getLocation = async () => {
-  //     try {
-  //       const location = await getCurrentLocation();
-  //       return location;
-  //     } catch (error) {
-  //       console.error("Error obtaining location:", error);
-  //     }
-  //   };
+  useEffect(() => {
+    const calculateDistance = async () => {
+      const restaurantLocation = {
+        latitude: restaurant.basic_information.latitude,
+        longitude: restaurant.basic_information.longitude,
+      };
+      const dist = haversineDistance(
+        locationCurrent.coords,
+        restaurantLocation,
+      );
+      setDistance(dist);
+    };
 
-  //   useEffect(() => {
-  //     const calculateDistance = async () => {
-  //       try {
-  //         getLocation().then((location) => {
-  //           const restaurantLocation = {
-  //             latitude: restaurant.basic_information.latitude,
-  //             longitude: restaurant.basic_information.longitude,
-  //           };
-  //           const dist = haversineDistance(location, restaurantLocation);
-  //           setDistance(dist);
-  //         });
-  //       } catch (error) {
-  //         console.error("Error calculating distance:", error);
-  //       }
-  //     };
+    calculateDistance();
+  }, [
+    locationCurrent,
+    restaurant.basic_information.latitude,
+    restaurant.basic_information.longitude,
+  ]);
 
-  //     calculateDistance();
-  //   }, [restaurant]);
+  const requestLocationPermission = async () => {
+    if (Platform.OS === 'ios') {
+      Geolocation.requestAuthorization('whenInUse');
+    } else {
+      try {
+        const granted = await PermissionsAndroid.request(
+          PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
+          {
+            title: 'Permiso de Localización',
+            message: 'La aplicación necesita acceso a tu ubicación.',
+            buttonNeutral: 'Preguntar después',
+            buttonNegative: 'Cancelar',
+            buttonPositive: 'Aceptar',
+          },
+        );
+        if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+          getLocation();
+          console.log('Permiso de localización concedido');
+        } else {
+          console.log('Permiso de localización denegado');
+        }
+      } catch (err) {
+        console.warn(err);
+      }
+    }
+  };
+
+  useEffect(() => {
+    requestLocationPermission();
+  }, []);
+
+  const getLocation = () => {
+    Geolocation.getCurrentPosition(
+      position => {
+        setLocationCurrent(position);
+      },
+      error => {
+        console.log(error.code, error.message);
+      },
+      {enableHighAccuracy: true, timeout: 15000, maximumAge: 10000},
+    );
+  };
 
   return (
     <View style={styles.card}>
@@ -68,11 +113,13 @@ const RestaurantCard = ({restaurant}) => {
           <Text style={styles.text}>{restaurant.basic_information.phone}</Text>
         </View>
       </View>
-      {/* <View style={styles.distanceContainer}>
-        <Text style={styles.distanceText}>
-          Distancia: {distance?.toFixed(2)} km
-        </Text>
-      </View> */}
+      {!Number.isNaN(distance) ? (
+        <View style={styles.distanceContainer}>
+          <Text style={styles.distanceText}>
+            Distancia: {distance?.toFixed(2)} km
+          </Text>
+        </View>
+      ) : null}
     </View>
   );
 };
