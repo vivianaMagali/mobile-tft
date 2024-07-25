@@ -1,7 +1,8 @@
 import React, {useContext} from 'react';
-import {View, Text, TouchableOpacity, StyleSheet} from 'react-native';
+import {View, Text, TouchableOpacity, StyleSheet, Alert} from 'react-native';
 import {useNavigation} from '@react-navigation/native';
 import {FirebaseContext} from '../App';
+import auth from '@react-native-firebase/auth';
 
 const HomeWaiter = () => {
   const {user} = useContext(FirebaseContext);
@@ -15,9 +16,14 @@ const HomeWaiter = () => {
     navigation.navigate('PendingOrdersOfWaiter');
   };
 
-  const logout = () => {
-    // Aquí deberías implementar la lógica de cierre de sesión
-    console.log('Cerrar sesión');
+  const logout = async () => {
+    try {
+      await auth().signOut();
+      navigation.navigate('Login');
+    } catch (error) {
+      Alert.alert('Error', 'No se pudo cerrar sesión. Inténtalo de nuevo.');
+      console.error('Error cerrando sesión: ', error);
+    }
   };
 
   return (
