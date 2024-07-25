@@ -91,10 +91,11 @@ const styles = StyleSheet.create({
     paddingHorizontal: 24,
   },
   title: {
+    marginTop: 10,
     fontSize: 24,
     fontWeight: 'bold',
     textAlign: 'center',
-    color: '#008080',
+    color: 'black',
   },
 });
 

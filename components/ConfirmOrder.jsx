@@ -1,8 +1,7 @@
-import React, {useContext, useState} from 'react';
+import React, {useContext, useState, useEffect} from 'react';
 import {
   View,
   Text,
-  TextInput,
   Button,
   ScrollView,
   TouchableOpacity,
@@ -13,7 +12,6 @@ import {useNavigation} from '@react-navigation/native';
 import {formatDate, generateUID, stateOrders} from '../utils';
 import Direction from './Direction';
 import firestore from '@react-native-firebase/firestore';
-import {setDoc} from '@react-native-firebase/firestore';
 import {RestaurantContext} from '../context/context';
 import {FirebaseContext} from '../App';
 
@@ -35,17 +33,21 @@ const ConfirmOrder = ({
   const [description, setDescription] = useState('');
   const [table, setTable] = useState('');
 
-  const saveOrder = async () => {
-    const dateNow = new Date();
-
+  useEffect(() => {
     const comandasCollectionRef = firestore()
       .collection('restaurants')
       .doc(restaurant.uid)
       .collection('comandas');
 
-    comandasCollectionRef.onSnapshot(snapshot => {
+    const unsubscribe = comandasCollectionRef.onSnapshot(snapshot => {
       setComandas(snapshot.docs.map(doc => doc.data()));
     });
+
+    return () => unsubscribe();
+  }, [restaurant.uid]);
+
+  const saveOrder = async () => {
+    const dateNow = new Date();
 
     const orderList = comandas.length;
     const waitTime = Math.floor(orderList * 5);
@@ -88,7 +90,6 @@ const ConfirmOrder = ({
 
     const docData = getData();
     try {
-      // Añadir comanda a la bd de comandas del restaurant
       const commandCollectionRef = firestore()
         .collection('restaurants')
         .doc(restaurant.uid)
@@ -98,9 +99,8 @@ const ConfirmOrder = ({
         ...getData(),
         uidOrder: commandDocRef.id,
       };
-      await setDoc(commandDocRef, updatedDocData);
+      await commandDocRef.set(updatedDocData);
 
-      // Añadir comanda a la bd de record del usuario
       const recordCollectionRef = firestore()
         .collection('users')
         .doc(user.uidUser)
@@ -110,79 +110,75 @@ const ConfirmOrder = ({
         ...getData(),
         uidOrder: recordDocRef.id,
       };
-      await setDoc(recordDocRef, updatedDocRecord);
+      await recordDocRef.set(updatedDocRecord);
 
       setShowConfirmOrderModal(false);
       setShowOrderSummary(false);
       resetQuantities();
-      // Volver a la pagina del restaurant
       navigation.navigate('Restaurant', {uidRestaurant: restaurant.uid});
     } catch (e) {
       console.error('Error añadiendo el documento: ', e);
     }
   };
+
   return (
-    // <View style={styles.modalContainer}>
-    <Modal style={styles.modalContent}>
-      <View style={styles.header}>
-        <Text style={styles.title}>Confirmar pedido</Text>
-        <TouchableOpacity onPress={() => setShowConfirmOrderModal(false)}>
-          <Text style={styles.closeButton}>×</Text>
-        </TouchableOpacity>
-      </View>
-      <ScrollView style={styles.scrollView}>
-        <View>
-          <Text style={styles.label}>Tus productos</Text>
-          {orders?.map((order, index) => (
-            <View key={`${order.name}-${index}`} style={styles.orderItem}>
-              <View style={styles.orderDetails}>
-                <Text style={styles.orderText}>
-                  <Text style={styles.fontBold}>x{order.amount}</Text>{' '}
-                  {order.name}
-                </Text>
-                <Text style={styles.orderPrice}>
-                  {(order.amount * order.price)?.toFixed(2)}€
-                </Text>
-              </View>
-              {order.ingredients && (
-                <Text style={styles.ingredientsText}>
-                  ({order.ingredients})
-                </Text>
-              )}
+    <Modal visible={true} transparent={true} animationType="slide">
+      <View style={styles.modalContainer}>
+        <View style={styles.modalContent}>
+          <View style={styles.header}>
+            <Text style={styles.title}>Confirmar pedido</Text>
+            <TouchableOpacity onPress={() => setShowConfirmOrderModal(false)}>
+              <Text style={styles.closeButton}>×</Text>
+            </TouchableOpacity>
+          </View>
+          <ScrollView style={styles.scrollView}>
+            <View>
+              <Text style={styles.label}>Tus productos</Text>
+              {orders?.map((order, index) => (
+                <View key={`${order.name}-${index}`} style={styles.orderItem}>
+                  <View style={styles.orderDetails}>
+                    <Text style={styles.orderText}>
+                      <Text style={styles.fontBold}>x{order.amount}</Text>{' '}
+                      {order.name}
+                    </Text>
+                    <Text style={styles.orderPrice}>
+                      {(order.amount * order.price)?.toFixed(2)}€
+                    </Text>
+                  </View>
+                  {order.ingredients && (
+                    <Text style={styles.ingredientsText}>
+                      ({order.ingredients})
+                    </Text>
+                  )}
+                </View>
+              ))}
             </View>
-          ))}
+            <View style={styles.totalContainer}>
+              <Text style={styles.totalText}>Total: {total?.toFixed(2)}€</Text>
+            </View>
+            <Direction
+              direction={restaurant?.basic_information?.direction}
+              setPlace={setPlace}
+              selectedOptionPlace={selectedOptionPlace}
+              setSelectedOptionPlace={setSelectedOptionPlace}
+              setTable={setTable}
+              setDescription={setDescription}
+              setDetail={setDetail}
+            />
+            <View style={styles.buttonContainer}>
+              <Button title="Aceptar" onPress={saveOrder} color="#008080" />
+            </View>
+          </ScrollView>
         </View>
-        <View style={styles.totalContainer}>
-          <Text style={styles.totalText}>Total: {total?.toFixed(2)}€</Text>
-        </View>
-        <Direction
-          direction={restaurant?.basic_information?.direction}
-          setPlace={setPlace}
-          selectedOptionPlace={selectedOptionPlace}
-          setSelectedOptionPlace={setSelectedOptionPlace}
-          setTable={setTable}
-          setDescription={setDescription}
-          setDetail={setDetail}
-        />
-        {/* <TextInput
-          style={styles.input}
-          onChangeText={setInputValue}
-          value={inputValue}
-          placeholder="Enter address"
-        /> */}
-        <View style={styles.buttonContainer}>
-          <Button title="Aceptar" onPress={saveOrder} color="#008080" />
-        </View>
-      </ScrollView>
+      </View>
     </Modal>
-    // </View>
   );
 };
 
 const styles = StyleSheet.create({
   modalContainer: {
     flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.3)',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -196,7 +192,9 @@ const styles = StyleSheet.create({
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
+    alignItems: 'center',
     borderBottomWidth: 1,
+    borderBottomColor: '#ddd',
     paddingBottom: 10,
     marginBottom: 20,
   },
@@ -221,6 +219,7 @@ const styles = StyleSheet.create({
   orderDetails: {
     flexDirection: 'row',
     justifyContent: 'space-between',
+    alignItems: 'center',
   },
   orderText: {
     fontSize: 14,
@@ -245,16 +244,9 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: 'bold',
   },
-  input: {
-    height: 40,
-    borderColor: 'gray',
-    borderWidth: 1,
-    borderRadius: 5,
-    paddingHorizontal: 10,
-    marginBottom: 20,
-  },
   buttonContainer: {
     alignItems: 'center',
+    marginTop: 20,
   },
 });
 

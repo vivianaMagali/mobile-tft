@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from 'react';
+import React, {useState, useEffect, useContext} from 'react';
 import {View, Text, StyleSheet, ScrollView} from 'react-native';
 // import { useRoute } from '@react-navigation/native';
 import firestore from '@react-native-firebase/firestore';
@@ -7,6 +7,8 @@ import OrderSummary from './OrderSummary';
 import ConfirmOrder from './ConfirmOrder';
 import {RestaurantContext} from '../context/context';
 import Searcher from './Searcher';
+import {typeProducts, typeRole} from '../utils';
+import {FirebaseContext} from '../App';
 // import Header from './Header';
 
 const Restaurant = ({route}) => {
@@ -14,6 +16,8 @@ const Restaurant = ({route}) => {
   const [restaurant, setRestaurant] = useState();
   const [menus, setMenus] = useState([]);
   const [drinks, setDrinks] = useState([]);
+  const [starters, setStarters] = useState([]);
+  const [mains, setMains] = useState([]);
   const [orders, setOrders] = useState([]);
   const [total, setTotal] = useState();
   const [showConfirmOrderModal, setShowConfirmOrderModal] = useState(false);
@@ -21,6 +25,7 @@ const Restaurant = ({route}) => {
   const [products, setProducts] = useState([]);
   const [filteredProducts, setFilteredProducts] = useState([]);
   const [quantities, setQuantities] = useState({});
+  const {user} = useContext(FirebaseContext);
   useEffect(() => {
     const restaurantDocRef = firestore()
       .collection('restaurants')
@@ -33,7 +38,26 @@ const Restaurant = ({route}) => {
 
     const menuCollectionRef = restaurantDocRef.collection('menu');
     const unsubscribeMenu = menuCollectionRef.onSnapshot(snapshot => {
-      setMenus(snapshot.docs.map(doc => doc.data()));
+      setMenus(
+        snapshot.docs
+          .map(doc => doc.data())
+          .filter(data => data.type === typeProducts.menu),
+      );
+      setDrinks(
+        snapshot.docs
+          .map(doc => doc.data())
+          .filter(data => data.type === typeProducts.drink),
+      );
+      setStarters(
+        snapshot.docs
+          .map(doc => doc.data())
+          .filter(data => data.type === typeProducts.starter),
+      );
+      setMains(
+        snapshot.docs
+          .map(doc => doc.data())
+          .filter(data => data.type === typeProducts.main),
+      );
     });
 
     const drinksCollectionRef = restaurantDocRef.collection('drinks');
@@ -70,7 +94,9 @@ const Restaurant = ({route}) => {
   };
   return (
     <RestaurantContext.Provider value={{restaurant}}>
-      <Searcher filterList={filterProducts} />
+      {user?.role === typeRole.waiter && (
+        <Searcher filterList={filterProducts} />
+      )}
       <View style={styles.container}>
         {showConfirmOrderModal && (
           <ConfirmOrder
@@ -83,28 +109,115 @@ const Restaurant = ({route}) => {
         )}
         <ScrollView contentContainerStyle={styles.scrollView}>
           <View style={styles.section}>
-            <View style={styles.menuContainer}>
-              {filteredProducts?.length > 0 ? (
-                filteredProducts.map(product => (
-                  <MenuCard
-                    key={product.name}
-                    product={product}
-                    orders={orders}
-                    setOrders={setOrders}
-                    setShowOrderSummary={setShowOrderSummary}
-                    quantity={quantities[product.name] || 0}
-                    setQuantity={newQuantity =>
-                      setQuantities(prev => ({
-                        ...prev,
-                        [product.name]: newQuantity,
-                      }))
-                    }
-                  />
-                ))
-              ) : (
-                <Text>No hay ningun producto que coincida con la busqueda</Text>
-              )}
-            </View>
+            {user.role === typeRole.waiter ? (
+              <View style={styles.menuContainer}>
+                {filteredProducts?.length > 0 ? (
+                  filteredProducts.map(product => (
+                    <MenuCard
+                      key={product.name}
+                      product={product}
+                      orders={orders}
+                      setOrders={setOrders}
+                      setShowOrderSummary={setShowOrderSummary}
+                      quantity={quantities[product.name] || 0}
+                      setQuantity={newQuantity =>
+                        setQuantities(prev => ({
+                          ...prev,
+                          [product.name]: newQuantity,
+                        }))
+                      }
+                    />
+                  ))
+                ) : (
+                  <Text>
+                    No hay ningun producto que coincida con la busqueda
+                  </Text>
+                )}
+              </View>
+            ) : (
+              <>
+                <View style={styles.container}>
+                  <Text style={styles.headerText}>Entrantes</Text>
+                  {starters?.length > 0 &&
+                    starters.map(starter => (
+                      <MenuCard
+                        key={starter.uid}
+                        product={starter}
+                        orders={orders}
+                        setOrders={setOrders}
+                        setShowOrderSummary={setShowOrderSummary}
+                        quantity={quantities[starter.name] || 0}
+                        setQuantity={newQuantity =>
+                          setQuantities(prev => ({
+                            ...prev,
+                            [starter.name]: newQuantity,
+                          }))
+                        }
+                      />
+                    ))}
+                </View>
+                <View style={styles.container}>
+                  <Text style={styles.headerText}>Menús</Text>
+                  {menus?.length > 0 &&
+                    menus.map(menu => (
+                      <MenuCard
+                        key={menu.uid}
+                        product={menu}
+                        orders={orders}
+                        setOrders={setOrders}
+                        setShowOrderSummary={setShowOrderSummary}
+                        quantity={quantities[menu.name] || 0}
+                        setQuantity={newQuantity =>
+                          setQuantities(prev => ({
+                            ...prev,
+                            [menu.name]: newQuantity,
+                          }))
+                        }
+                      />
+                    ))}
+                </View>
+                <View style={styles.container}>
+                  <Text style={styles.headerText}>Principal</Text>
+                  {mains?.length > 0 &&
+                    mains.map(main => (
+                      <MenuCard
+                        key={main.uid}
+                        product={main}
+                        orders={orders}
+                        setOrders={setOrders}
+                        setShowOrderSummary={setShowOrderSummary}
+                        quantity={quantities[main.name] || 0}
+                        setQuantity={newQuantity =>
+                          setQuantities(prev => ({
+                            ...prev,
+                            [main.name]: newQuantity,
+                          }))
+                        }
+                      />
+                    ))}
+                </View>
+                <View style={styles.container}>
+                  <Text style={styles.headerText}>Bebidas</Text>
+                  {drinks?.length > 0 &&
+                    drinks.map(drink => (
+                      <MenuCard
+                        key={drink.uid}
+                        product={drink}
+                        orders={orders}
+                        setOrders={setOrders}
+                        setShowOrderSummary={setShowOrderSummary}
+                        quantity={quantities[drink.name] || 0}
+                        setQuantity={newQuantity =>
+                          setQuantities(prev => ({
+                            ...prev,
+                            [drink.name]: newQuantity,
+                          }))
+                        }
+                      />
+                    ))}
+                </View>
+              </>
+            )}
           </View>
           {showOrderSummary && (
             <OrderSummary
@@ -125,7 +238,7 @@ const Restaurant = ({route}) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#008080',
+    backgroundColor: '#6ea9a8',
   },
   overlay: {
     flex: 1,
@@ -161,6 +274,13 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     flexWrap: 'wrap',
     justifyContent: 'flex-start',
+  },
+  headerText: {
+    paddingHorizontal: 32,
+    fontWeight: 'bold',
+    textTransform: 'uppercase',
+    textAlign: 'center',
+    fontSize: 18,
   },
 });
 

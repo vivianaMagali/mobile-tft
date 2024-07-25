@@ -123,7 +123,11 @@ const OrderSummary = ({
           )}
 
           <View>
-            <Button title="Confirmar pedido" onPress={confirmOrder} />
+            <Button
+              title="Confirmar pedido"
+              color={'#008080'}
+              onPress={confirmOrder}
+            />
           </View>
         </View>
       </View>
@@ -152,13 +156,13 @@ const styles = StyleSheet.create({
     elevation: 4,
   },
   header: {
-    backgroundColor: '#4CAF50',
+    backgroundColor: '#008080',
     paddingVertical: 12,
     paddingHorizontal: 16,
   },
   headerText: {
     fontSize: 18,
-    backgroundColor: '#4CAF50',
+    backgroundColor: '#008080',
     fontWeight: 'bold',
     color: '#FFFFFF',
     textAlign: 'center',
