@@ -76,9 +76,9 @@ function App() {
   useEffect(() => {
     requestUserPermission();
     getToken(setToken);
-    setupNotificationListener();
-    setupBackgroundMessageHandler();
-    setupNotificationOpenedAppHandler();
+    setupNotificationListener() ||
+      setupBackgroundMessageHandler() ||
+      setupNotificationOpenedAppHandler();
   }, []);
 
   useEffect(() => {

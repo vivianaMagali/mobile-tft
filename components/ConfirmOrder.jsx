@@ -25,7 +25,7 @@ const ConfirmOrder = ({
   const [place, setPlace] = useState(null);
   const {restaurant} = useContext(RestaurantContext);
   const {user, token} = useContext(FirebaseContext);
-  const [inputValue, setInputValue] = useState('');
+  const [direction, setDirection] = useState('');
   const navigation = useNavigation();
   const [comandas, setComandas] = useState([]);
   const [selectedOptionPlace, setSelectedOptionPlace] = useState('home');
@@ -72,7 +72,7 @@ const ConfirmOrder = ({
         return {
           ...baseData,
           placeId: place,
-          direction: inputValue,
+          direction: direction,
           detail,
         };
       } else if (selectedOptionPlace === 'local') {
