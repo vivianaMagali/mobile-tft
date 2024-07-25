@@ -96,7 +96,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     marginVertical: 10,
     marginHorizontal: 10,
-    height: 130,
+    height: 140,
     borderRadius: 10,
     backgroundColor: 'white',
     shadowColor: '#000',
