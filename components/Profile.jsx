@@ -28,13 +28,13 @@ const Profile = () => {
     <View style={styles.container}>
       <Header />
       <ScrollView contentContainerStyle={styles.contentContainer}>
-        {/* <Image source={{uri: user?.img}} style={styles.profileImage} /> */}
-        {/* <View style={styles.infoContainer}>
+        <Image source={{uri: user?.img}} style={styles.profileImage} />
+        <View style={styles.infoContainer}>
           <Text style={styles.name}>{user?.name}</Text>
           <Text style={styles.email}>{user?.email}</Text>
           {user?.role && <Text style={styles.role}>{user?.role}</Text>}
           <Text style={styles.phone}>{user?.phone}</Text>
-        </View> */}
+        </View>
         <TouchableOpacity style={styles.logoutButton} onPress={logout}>
           <Text style={styles.logoutButtonText}>Cerrar sesión</Text>
         </TouchableOpacity>

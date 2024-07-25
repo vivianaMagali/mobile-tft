@@ -16,7 +16,6 @@ import {FirebaseContext} from '../App';
 
 const WaitTime = ({setShowWaitTime, showWaitTime}) => {
   const {record} = useContext(FirebaseContext);
-
   return (
     <Modal
       transparent={true}

@@ -88,20 +88,32 @@ function App() {
         const userDocRef = doc(firestore(), 'users', user.uid);
         const userDoc = await getDoc(userDocRef);
         setUser({uid: user.uid, ...userDoc.data()});
-
-        const recordCollectionRef = firestore().collection('record');
-        const unsubscribeRecord = recordCollectionRef.onSnapshot(snapshot => {
-          setRecord(snapshot.docs.map(doc => doc.data()));
-        });
-
+        const recordCollectionRef = firestore()
+          .collection('users')
+          .doc(user.uid)
+          .collection('record');
+        const unsubscribeRecord = recordCollectionRef.onSnapshot(
+          snapshot => {
+            setRecord(
+              snapshot.docs.map(docRecord => {
+                const data = docRecord.data();
+                return data;
+              }),
+            );
+          },
+          error => {
+            console.error('Error al suscribirse a onSnapshot: ', error); // Manejo de errores
+          },
+        );
         return () => unsubscribeRecord();
       } else {
         setUser(null);
+        setRecord([]);
       }
     });
 
     return () => unsubscribe();
-  }, []);
+  }, [token]);
 
   return (
     <FirebaseContext.Provider value={{user, record, token: token}}>

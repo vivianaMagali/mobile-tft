@@ -5,11 +5,11 @@ import {
   Modal,
   TouchableOpacity,
   StyleSheet,
-  FlatList,
   ScrollView,
+  Image,
 } from 'react-native';
-// import {AntDesign, Feather} from '@expo/vector-icons'; // Puedes usar react-native-vector-icons si no tienes @expo/vector-icons
 import {FirebaseContext} from '../App';
+import recordImg from '../assets/record-logo.png';
 
 const Record = ({setShowRecord, showRecord}) => {
   const {record} = useContext(FirebaseContext);
@@ -22,13 +22,12 @@ const Record = ({setShowRecord, showRecord}) => {
       <View style={styles.overlay}>
         <View style={styles.modalContainer}>
           <View style={styles.header}>
-            {/* <AntDesign name="book" size={24} color="teal" /> */}
+            <Image style={styles.icon} source={recordImg} />
             <Text style={styles.title}>Historial</Text>
             <TouchableOpacity
               onPress={() => setShowRecord(false)}
               style={styles.closeButton}>
-              {/* <Feather name="x" size={24} color="gray" /> */}
-              <Text>icono historial</Text>
+              <Text style={styles.closeButtonText}>×</Text>
             </TouchableOpacity>
           </View>
           {record.length > 0 ? (
@@ -80,6 +79,18 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     padding: 16,
     elevation: 5, // Shadow for Android
+  },
+  icon: {
+    width: 40,
+    height: 40,
+  },
+  iconLarge: {
+    width: 48,
+    height: 48,
+  },
+  closeButtonText: {
+    fontSize: 20,
+    color: '#333',
   },
   header: {
     flexDirection: 'row',

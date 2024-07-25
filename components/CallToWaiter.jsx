@@ -12,7 +12,7 @@ import {
 import waiter from '../assets/camarero.png';
 import {FirebaseContext} from '../App';
 
-const CallToWaiter = ({setCallToWaiter, showCallToWaiter}) => {
+const CallToWaiter = ({setCallToWaiter, callToWaiter}) => {
   const {token} = useContext(FirebaseContext);
 
   const getTheCheck = () => {
@@ -48,7 +48,7 @@ const CallToWaiter = ({setCallToWaiter, showCallToWaiter}) => {
   return (
     <Modal
       transparent={true}
-      visible={showCallToWaiter}
+      visible={callToWaiter}
       onRequestClose={() => setCallToWaiter(false)}>
       <View style={styles.overlay}>
         <View style={styles.modalContainer}>
@@ -125,7 +125,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   actionButton: {
-    backgroundColor: '#00bcd4',
+    backgroundColor: '#00796B',
     padding: 12,
     borderRadius: 24,
     marginVertical: 8,

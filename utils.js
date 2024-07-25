@@ -76,6 +76,12 @@ export const typeRole = Object.freeze({
   cashier: 'Cajero',
 });
 
+export const getKeyByValueOfStateOrder = value => {
+  return (
+    Object.keys(stateOrders).find(key => stateOrders[key] === value) || null
+  );
+};
+
 export const typeProducts = Object.freeze({
   main: 'Principal',
   starter: 'Entrante',

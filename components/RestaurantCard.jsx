@@ -7,7 +7,6 @@ import {
   PermissionsAndroid,
   Platform,
 } from 'react-native';
-// import { getCurrentLocation, haversineDistance } from "../utils";
 import PhoneIcon from './icons/PhoneIcon';
 import ClockIcon from './icons/ClockIcon';
 import MapPinIcon from './icons/MapPinIcon';
@@ -25,7 +24,7 @@ const RestaurantCard = ({restaurant}) => {
         longitude: restaurant.basic_information.longitude,
       };
       const dist = haversineDistance(
-        locationCurrent.coords,
+        locationCurrent?.coords,
         restaurantLocation,
       );
       setDistance(dist);
