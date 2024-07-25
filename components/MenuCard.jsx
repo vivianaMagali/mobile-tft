@@ -8,6 +8,7 @@ import {
   StyleSheet,
 } from 'react-native';
 import {FirebaseContext} from '../App';
+import {typeProducts} from '../utils';
 
 const MenuCard = ({
   product,
@@ -61,16 +62,27 @@ const MenuCard = ({
 
   return (
     <ScrollView>
-      <View style={styles.card}>
+      <View
+        style={[
+          styles.card,
+          product.type === typeProducts.drink && styles.cardDrink,
+        ]}>
         {user.role !== 'Camarero' && (
           <View style={styles.imageContainer}>
             <Image source={{uri: product.img}} style={styles.image} />
           </View>
         )}
 
-        <View style={styles.details}>
+        <View
+          style={[
+            styles.details,
+            user.role === 'Camarero' && styles.detailsNoImage,
+            product.type === typeProducts.drink && styles.detailsDrink,
+          ]}>
           <Text style={styles.productName}>{product.name}</Text>
-          <Text style={styles.productIngredients}>{product.ingredients}</Text>
+          {product.type !== typeProducts.drink && (
+            <Text style={styles.productIngredients}>{product.ingredients}</Text>
+          )}
           <View style={styles.footer}>
             <Text style={styles.productPrice}>{product.price}€</Text>
             <View style={styles.quantityContainer}>
@@ -96,7 +108,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     marginVertical: 10,
     marginHorizontal: 10,
-    height: 140,
+    height: 180,
     borderRadius: 10,
     backgroundColor: 'white',
     shadowColor: '#000',
@@ -104,6 +116,9 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.8,
     shadowRadius: 2,
     elevation: 1,
+  },
+  cardDrink: {
+    height: 120,
   },
   imageContainer: {
     width: '40%',
@@ -117,20 +132,26 @@ const styles = StyleSheet.create({
     height: '100%',
   },
   details: {
-    padding: 10,
+    padding: 15,
     justifyContent: 'space-between',
     width: '60%',
   },
+  detailsNoImage: {
+    width: '100%',
+  },
+  detailsDrink: {
+    height: '100%',
+  },
   productName: {
-    fontSize: 16,
+    fontSize: 20,
     fontWeight: 'bold',
     color: '#008080',
     textTransform: 'uppercase',
   },
   productIngredients: {
-    fontSize: 14,
+    fontSize: 16,
     color: '#777',
-    height: 50,
+    marginTop: 5,
   },
   footer: {
     flexDirection: 'row',
@@ -138,26 +159,27 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   productPrice: {
-    fontSize: 16,
+    fontSize: 20,
     fontWeight: 'bold',
   },
   quantityContainer: {
     flexDirection: 'row',
     alignItems: 'center',
+    marginTop: 10,
   },
   button: {
-    padding: 5,
+    padding: 10,
     backgroundColor: '#008080',
     borderRadius: 5,
-    marginHorizontal: 5,
+    marginHorizontal: 10,
   },
   buttonText: {
     color: 'white',
     fontWeight: 'bold',
-    fontSize: 16,
+    fontSize: 24,
   },
   quantityText: {
-    fontSize: 16,
+    fontSize: 24,
     fontWeight: 'bold',
   },
 });

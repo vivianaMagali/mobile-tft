@@ -97,6 +97,7 @@ const Restaurant = ({route}) => {
       {user?.role === typeRole.waiter && (
         <Searcher filterList={filterProducts} />
       )}
+      {!user?.role && <Text>Prueba</Text>}
       <View style={styles.container}>
         {showConfirmOrderModal && (
           <ConfirmOrder
@@ -129,7 +130,7 @@ const Restaurant = ({route}) => {
                     />
                   ))
                 ) : (
-                  <Text>
+                  <Text style={styles.headerText}>
                     No hay ningun producto que coincida con la busqueda
                   </Text>
                 )}
