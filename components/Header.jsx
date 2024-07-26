@@ -11,6 +11,7 @@ import profile from '../assets/profile.png';
 import recordImg from '../assets/record-logo.png';
 import {FirebaseContext} from '../App';
 import firestore from '@react-native-firebase/firestore';
+import {stateOrders} from '../utils';
 
 const Header = () => {
   const navigation = useNavigation();
@@ -21,8 +22,14 @@ const Header = () => {
   const [showRecord, setShowRecord] = useState(false);
   const [table, setTable] = useState();
 
+  // Para saber si muestro al icono del restaurante debo estar en el local y tener una cuenta sin pagar
   const localRecord = record.find(
     rcd => rcd.category === 'local' && rcd.paymentStatus === false,
+  );
+
+  // Si existen pedidos realizados que sean distinto a terminado, tengo que enseñar WaitTime
+  const commandsPending = record.find(
+    rcd => rcd.state !== stateOrders.TERMINADO,
   );
 
   useEffect(() => {
@@ -81,13 +88,17 @@ const Header = () => {
             </TouchableOpacity>
           )}
           {showWaitTime && <WaitTime setShowWaitTime={setShowWaitTime} />}
-          <TouchableOpacity onPress={() => setShowWaitTime(true)}>
-            <Image style={styles.logo} source={order} />
-          </TouchableOpacity>
+          {commandsPending && (
+            <TouchableOpacity onPress={() => setShowWaitTime(true)}>
+              <Image style={styles.iconOrder} source={order} />
+            </TouchableOpacity>
+          )}
           {showRecord && <Record setShowRecord={setShowRecord} />}
-          <TouchableOpacity onPress={() => setShowRecord(true)}>
-            <Image style={styles.icon} source={recordImg} />
-          </TouchableOpacity>
+          {record.length > 0 && (
+            <TouchableOpacity onPress={() => setShowRecord(true)}>
+              <Image style={styles.icon} source={recordImg} />
+            </TouchableOpacity>
+          )}
         </View>
         <TouchableOpacity style={styles.profileButton} onPress={goProfile}>
           <Image style={styles.logo} source={profile} />
@@ -116,6 +127,10 @@ const styles = StyleSheet.create({
   icon: {
     width: 54,
     height: 54,
+  },
+  iconOrder: {
+    width: 68,
+    height: 68,
   },
   profileButton: {
     marginLeft: 'auto',

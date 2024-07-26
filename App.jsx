@@ -45,27 +45,36 @@ const getToken = async setToken => {
 //Recibir notificación con app abierta
 const setupNotificationOpenedAppHandler = () => {
   messaging().onNotificationOpenedApp(remoteMessage => {
-    Alert.alert(
-      'A new FCM message arrived with open app!',
-      JSON.stringify(remoteMessage),
-    );
+    const {title, body} = remoteMessage.notification || {};
+    if (title && body) {
+      Alert.alert(title, body);
+    } else {
+      console.warn('No title or body in the notification:', remoteMessage);
+    }
   });
 };
 
 //Recibir notificación con app en segundo plano
 const setupBackgroundMessageHandler = () => {
   messaging().setBackgroundMessageHandler(async remoteMessage => {
-    Alert.alert(
-      'A new FCM message arrived background app!',
-      JSON.stringify(remoteMessage),
-    );
+    const {title, body} = remoteMessage.notification || {};
+    if (title && body) {
+      Alert.alert(title, body);
+    } else {
+      console.warn('No title or body in the notification:', remoteMessage);
+    }
   });
 };
 
 //Recibo notificación en que plano?
 const setupNotificationListener = () => {
   messaging().onMessage(async remoteMessage => {
-    Alert.alert('A new FCM message arrived!', JSON.stringify(remoteMessage));
+    const {title, body} = remoteMessage.notification || {};
+    if (title && body) {
+      Alert.alert(title, body);
+    } else {
+      console.warn('No title or body in the notification:', remoteMessage);
+    }
   });
 };
 
