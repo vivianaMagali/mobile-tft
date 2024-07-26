@@ -8,7 +8,7 @@ import {
   StyleSheet,
 } from 'react-native';
 import {FirebaseContext} from '../App';
-import {typeProducts} from '../utils';
+import {typeProducts, typeRole} from '../utils';
 
 const MenuCard = ({
   product,
@@ -67,7 +67,7 @@ const MenuCard = ({
           styles.card,
           product.type === typeProducts.drink && styles.cardDrink,
         ]}>
-        {user.role !== 'Camarero' && (
+        {user?.role !== typeRole.waiter && (
           <View style={styles.imageContainer}>
             <Image source={{uri: product.img}} style={styles.image} />
           </View>
@@ -76,7 +76,7 @@ const MenuCard = ({
         <View
           style={[
             styles.details,
-            user.role === 'Camarero' && styles.detailsNoImage,
+            user?.role === typeRole.waiter && styles.detailsNoImage,
             product.type === typeProducts.drink && styles.detailsDrink,
           ]}>
           <Text style={styles.productName}>{product.name}</Text>

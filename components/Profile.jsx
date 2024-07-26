@@ -28,7 +28,9 @@ const Profile = () => {
     <View style={styles.container}>
       <Header />
       <ScrollView contentContainerStyle={styles.contentContainer}>
-        <Image source={{uri: user?.img}} style={styles.profileImage} />
+        {user?.role && (
+          <Image source={{uri: user?.img}} style={styles.profileImage} />
+        )}
         <View style={styles.infoContainer}>
           <Text style={styles.name}>{user?.name}</Text>
           <Text style={styles.email}>{user?.email}</Text>

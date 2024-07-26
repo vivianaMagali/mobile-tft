@@ -11,6 +11,7 @@ import {
 import {useNavigation} from '@react-navigation/native';
 import firestore from '@react-native-firebase/firestore';
 import Searcher from './Searcher';
+import Header from './Header';
 
 const Home = () => {
   const [restaurantList, setRestaurantList] = useState([]);
@@ -57,6 +58,7 @@ const Home = () => {
   return (
     <SafeAreaView>
       <ScrollView>
+        <Header />
         <View style={styles.container}>
           <Text style={styles.title}>¿Dónde deseas comer?</Text>
         </View>

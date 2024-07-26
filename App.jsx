@@ -85,12 +85,12 @@ function App() {
   useEffect(() => {
     const unsubscribe = auth().onAuthStateChanged(async user => {
       if (user) {
-        const userDocRef = doc(firestore(), 'users', user.uid);
+        const userDocRef = doc(firestore(), 'users', user?.uid);
         const userDoc = await getDoc(userDocRef);
-        setUser({uid: user.uid, ...userDoc.data()});
+        setUser({uid: user?.uid, ...userDoc.data()});
         const recordCollectionRef = firestore()
           .collection('users')
-          .doc(user.uid)
+          .doc(user?.uid)
           .collection('record');
         const unsubscribeRecord = recordCollectionRef.onSnapshot(
           snapshot => {

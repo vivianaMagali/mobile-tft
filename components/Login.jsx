@@ -41,7 +41,7 @@ const Login = () => {
         setError('');
         const user = auth().currentUser;
 
-        const userDocRef = doc(firestore(), 'users', user.uid);
+        const userDocRef = doc(firestore(), 'users', user?.uid);
         const userDoc = await getDoc(userDocRef);
 
         if (userDoc.exists) {
@@ -75,8 +75,8 @@ const Login = () => {
           email,
           password,
         );
-        const userData = {email, name, phone, token, uidUser: user.uid};
-        const userRef = doc(firestore(), 'users', user.uid);
+        const userData = {email, name, phone, token, uidUser: user?.uid};
+        const userRef = doc(firestore(), 'users', user?.uid);
         await setDoc(userRef, userData);
         setError('');
         navigation.navigate('Home');

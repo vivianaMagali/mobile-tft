@@ -1,5 +1,5 @@
 import React, {useContext, useEffect, useState} from 'react';
-import {View, Text, Image, TouchableOpacity, StyleSheet} from 'react-native';
+import {View, Image, TouchableOpacity, StyleSheet} from 'react-native';
 import {useNavigation} from '@react-navigation/native';
 import WaitTime from './WaitTime';
 import CallToWaiter from './CallToWaiter';
@@ -7,7 +7,7 @@ import Record from './Record';
 import logo from '../assets/logo.png';
 import waiter from '../assets/camarero.png';
 import order from '../assets/comida.png';
-import profile from '../assets/logo_perfil.png';
+import profile from '../assets/profile.png';
 import recordImg from '../assets/record-logo.png';
 import {FirebaseContext} from '../App';
 import firestore from '@react-native-firebase/firestore';
@@ -19,12 +19,25 @@ const Header = () => {
   const [callToWaiter, setCallToWaiter] = useState(false);
   const [showWaitTime, setShowWaitTime] = useState(false);
   const [showRecord, setShowRecord] = useState(false);
+  const [table, setTable] = useState();
+
+  const localRecord = record.find(
+    rcd => rcd.category === 'local' && rcd.paymentStatus === false,
+  );
+
+  useEffect(() => {
+    if (localRecord) {
+      setTable(localRecord.table);
+    } else {
+      setTable(undefined);
+    }
+  }, [localRecord, record]);
 
   useEffect(() => {
     if (user && !user?.role) {
       const recordCollectionRef = firestore()
         .collection('users')
-        .doc(user.uid)
+        .doc(user?.uid)
         .collection('record');
       const unsubscribeRecord = recordCollectionRef.onSnapshot(
         snapshot => {
@@ -51,27 +64,25 @@ const Header = () => {
     user ? navigation.navigate('Profile') : navigation.navigate('Login');
   };
 
-  const localRecord = record.find(
-    rcd => rcd.category === 'local' && rcd.paymentStatus === false,
-  );
-
   return (
-    <FirebaseContext.Provider value={{record}}>
+    <FirebaseContext.Provider value={{user, record}}>
       <View style={styles.container}>
-        {showWaitTime && <WaitTime setShowWaitTime={setShowWaitTime} />}
         <TouchableOpacity onPress={() => !user?.role && goHome()}>
           <Image style={styles.logo} source={logo} />
         </TouchableOpacity>
 
         <View style={styles.buttonContainer}>
-          {callToWaiter && <CallToWaiter setCallToWaiter={setCallToWaiter} />}
-          {localRecord && (
+          {callToWaiter && (
+            <CallToWaiter setCallToWaiter={setCallToWaiter} table={table} />
+          )}
+          {table && (
             <TouchableOpacity onPress={() => setCallToWaiter(true)}>
               <Image style={styles.icon} source={waiter} />
             </TouchableOpacity>
           )}
+          {showWaitTime && <WaitTime setShowWaitTime={setShowWaitTime} />}
           <TouchableOpacity onPress={() => setShowWaitTime(true)}>
-            <Image style={styles.icon} source={order} />
+            <Image style={styles.logo} source={order} />
           </TouchableOpacity>
           {showRecord && <Record setShowRecord={setShowRecord} />}
           <TouchableOpacity onPress={() => setShowRecord(true)}>
@@ -79,7 +90,7 @@ const Header = () => {
           </TouchableOpacity>
         </View>
         <TouchableOpacity style={styles.profileButton} onPress={goProfile}>
-          <Image style={styles.icon} source={profile} />
+          <Image style={styles.logo} source={profile} />
         </TouchableOpacity>
       </View>
     </FirebaseContext.Provider>
@@ -89,14 +100,12 @@ const Header = () => {
 const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
-    padding: 10,
     alignItems: 'center',
-    backgroundColor: '#6ea9a8',
     width: '100%',
   },
   logo: {
-    width: 64,
-    height: 64,
+    width: 96,
+    height: 96,
   },
   buttonContainer: {
     flexDirection: 'row',
@@ -105,33 +114,11 @@ const styles = StyleSheet.create({
     spaceBetween: 10,
   },
   icon: {
-    width: 40,
-    height: 40,
-  },
-  iconLarge: {
-    width: 48,
-    height: 48,
-  },
-  recordIcon: {
-    width: 40,
-    height: 40,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  recordText: {
-    color: '#00bcd4',
+    width: 54,
+    height: 54,
   },
   profileButton: {
     marginLeft: 'auto',
-  },
-  profileIcon: {
-    width: 40,
-    height: 40,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  profileText: {
-    color: '#00bcd4',
   },
 });
 

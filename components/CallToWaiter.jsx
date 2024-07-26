@@ -1,4 +1,4 @@
-import React, {useContext} from 'react';
+import React, {useEffect, useState} from 'react';
 import {
   View,
   Text,
@@ -8,19 +8,38 @@ import {
   StyleSheet,
 } from 'react-native';
 
-// Importa la imagen
 import waiter from '../assets/camarero.png';
-import {FirebaseContext} from '../App';
+import firestore from '@react-native-firebase/firestore';
+import {typeRole} from '../utils';
 
-const CallToWaiter = ({setCallToWaiter, callToWaiter}) => {
-  const {token} = useContext(FirebaseContext);
+const CallToWaiter = ({setCallToWaiter, callToWaiter, table}) => {
+  const [tokensWaiter, setTokensWaiter] = useState([]);
+
+  // Obtengo los tokens de los camareros
+  useEffect(() => {
+    const usersCollectionRef = firestore().collection('users');
+
+    usersCollectionRef.onSnapshot(snapshot => {
+      setTokensWaiter(
+        snapshot.docs
+          .filter(doc => doc.data().role === typeRole.waiter)
+          .map(doc => doc.data().token),
+      );
+    });
+  }, []);
 
   const getTheCheck = () => {
-    sendPushNotification();
+    const title = 'Llevar cuenta';
+    const body = `${('Llevar cuenta a la mesa nº', table)}`;
+    sendPushNotification(title, body, table);
+    setCallToWaiter(false);
   };
 
   const callTheWaiter = () => {
-    sendPushNotification();
+    const title = 'Acercase a la mesa';
+    const body = `${('Llevar cuenta a la mesa nº', table)}`;
+    sendPushNotification(title, body, table);
+    setCallToWaiter(false);
   };
 
   // Endpoint para enviar la notificación push al dispositivo que realizó el pedido
@@ -33,7 +52,7 @@ const CallToWaiter = ({setCallToWaiter, callToWaiter}) => {
           Authorization: `key=${process.env.REACT_APP_KEY_SERVER}`,
         },
         body: JSON.stringify({
-          to: token,
+          registration_ids: tokensWaiter,
           notification: {
             title: 'Título de la notificación',
             body: 'Cuerpo de la notificación',

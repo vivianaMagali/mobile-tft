@@ -1,5 +1,5 @@
 import React, {useContext} from 'react';
-import {View, Text, TouchableOpacity, StyleSheet, Alert} from 'react-native';
+import {View, Text, TouchableOpacity, StyleSheet} from 'react-native';
 import {useNavigation} from '@react-navigation/native';
 import {FirebaseContext} from '../App';
 import auth from '@react-native-firebase/auth';
@@ -9,7 +9,7 @@ const HomeWaiter = () => {
   const navigation = useNavigation();
 
   const newCommand = () => {
-    navigation.navigate('Restaurant', {uidRestaurant: user.uidRestaurant});
+    navigation.navigate('Restaurant', {uidRestaurant: user?.uidRestaurant});
   };
 
   const pendingOrders = () => {
@@ -27,7 +27,7 @@ const HomeWaiter = () => {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Camarero: {user.name}</Text>
+      <Text style={styles.title}>Camarero: {user?.name}</Text>
       <View style={styles.buttonWrapper}>
         <TouchableOpacity style={styles.button} onPress={newCommand}>
           <Text style={styles.buttonText}>Nueva Comanda</Text>

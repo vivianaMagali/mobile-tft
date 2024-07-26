@@ -22,7 +22,7 @@ const PendingOrdersOfWaiter = ({route}) => {
   useEffect(() => {
     const commandCollectionRef = firestore()
       .collection('restaurants')
-      .doc(user.uidRestaurant)
+      .doc(user?.uidRestaurant)
       .collection('comandas');
 
     const unsubscribe = commandCollectionRef.onSnapshot(
@@ -33,7 +33,7 @@ const PendingOrdersOfWaiter = ({route}) => {
           }))
           .filter(
             comanda =>
-              comanda.userUid === user.uidUser &&
+              comanda.userUid === user?.uidUser &&
               comanda.state === stateOrders.RECIBIDO,
           );
         setComandas(fetchedCommand);
@@ -46,14 +46,13 @@ const PendingOrdersOfWaiter = ({route}) => {
     return () => {
       unsubscribe();
     };
-  }, [user.uidRestaurant, user.uidUser]);
+  }, [user?.uidRestaurant, user?.uidUser]);
 
   const selectedCommand = commandSelected => {
-    // navigation.navigate('Restaurant', {uidRestaurant: user.uidRestaurant});
+    // navigation.navigate('Restaurant', {uidRestaurant: user?.uidRestaurant});
     setPendingCommandSelected(commandSelected);
   };
 
-  console.log('comandas', commands);
   return (
     <>
       {commands?.length > 0 &&

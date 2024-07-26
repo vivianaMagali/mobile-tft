@@ -3,7 +3,7 @@ import {View, Text, Button, StyleSheet} from 'react-native';
 import {setDoc} from '@react-native-firebase/firestore';
 import {FirebaseContext} from '../App';
 import firestore from '@react-native-firebase/firestore';
-import {formatDate, generateUID, stateOrders} from '../utils';
+import {formatDate, generateUID, stateOrders, typeRole} from '../utils';
 import {TextInput} from 'react-native-gesture-handler';
 import {useNavigation} from '@react-navigation/native';
 
@@ -15,7 +15,7 @@ const OrderSummary = ({
   total,
   setTotal = () => {},
 }) => {
-  const {user} = useContext(FirebaseContext);
+  const {user, token} = useContext(FirebaseContext);
   const dateNow = new Date();
   const [table, setTable] = useState('');
   const [description, setDescription] = useState('');
@@ -23,20 +23,20 @@ const OrderSummary = ({
   const navigation = useNavigation();
 
   const confirmOrder = async () => {
-    if (user.role === 'Camarero' && !table) {
+    if (user?.role === typeRole.waiter && !table) {
       setError('Introduce número de mesa');
       return;
     }
-    if (user.role === 'Camarero') {
+    if (user?.role === typeRole.waiter) {
       const commandCollectionRef = firestore()
         .collection('restaurants')
-        .doc(user.uidRestaurant)
+        .doc(user?.uidRestaurant)
         .collection('comandas');
       const newCommand = {
         date: formatDate(dateNow),
         order: orders,
         state: stateOrders.RECIBIDO,
-        userUid: user.uidUser,
+        userUid: user?.uidUser,
         category: 'local',
         table,
         description,
@@ -44,6 +44,7 @@ const OrderSummary = ({
         orderId: generateUID(),
         waitTime: 55,
         paymentStatus: false,
+        token,
       };
       try {
         const commandDocRef = await commandCollectionRef.add(newCommand);
@@ -75,7 +76,7 @@ const OrderSummary = ({
           <Text style={styles.headerText}>Tu pedido</Text>
         </View>
         <View style={styles.content}>
-          {user.role === 'Camarero' && (
+          {user?.role === typeRole.waiter && (
             <View style={styles.container}>
               <TextInput
                 required
@@ -105,7 +106,7 @@ const OrderSummary = ({
               </Text>
             </View>
           ))}
-          {user.role === 'Camarero' ? (
+          {user?.role === typeRole.waiter ? (
             <TextInput
               multiline
               numberOfLines={4}

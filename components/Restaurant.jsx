@@ -111,7 +111,7 @@ const Restaurant = ({route}) => {
         )}
         <ScrollView contentContainerStyle={styles.scrollView}>
           <View style={styles.section}>
-            {user.role === typeRole.waiter ? (
+            {user?.role === typeRole.waiter ? (
               <View style={styles.menuContainer}>
                 {filteredProducts?.length > 0 ? (
                   filteredProducts.map(product => (
